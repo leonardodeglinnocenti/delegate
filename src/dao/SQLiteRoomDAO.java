@@ -33,8 +33,9 @@ public class SQLiteRoomDAO implements RoomDAO{
     @Override
     public void insert(Room room) throws Exception {
         Connection connection = Database.getConnection();
+        room.setId(getNextId());
         PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Room (id, description, maxGuestsAllowed) VALUES (?, ?, ?)");
-        preparedStatement.setInt(1, getNextId());
+        preparedStatement.setInt(1, room.getId());
         preparedStatement.setString(2, room.getDescription());
         preparedStatement.setInt(3, room.getMaxGuestsAllowed());
         preparedStatement.executeUpdate();
@@ -45,10 +46,12 @@ public class SQLiteRoomDAO implements RoomDAO{
     @Override
     public void update(Room room) throws Exception {
         Connection connection = Database.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Room SET description = ?, maxGuestsAllowed = ? WHERE id = ?");
+        PreparedStatement preparedStatement = connection.prepareStatement("UPDATE Room SET description = ?, maxGuestsAllowed = ?, hasPrivateBathroom = ?, hasKitchen = ? WHERE id = ?");
         preparedStatement.setString(1, room.getDescription());
         preparedStatement.setInt(2, room.getMaxGuestsAllowed());
-        preparedStatement.setInt(3, room.getId());
+        preparedStatement.setBoolean(3, room.getHasPrivateBathroom());
+        preparedStatement.setBoolean(4, room.getHasKitchen());
+        preparedStatement.setInt(5, room.getId());
         preparedStatement.executeUpdate();
         preparedStatement.close();
         Database.closeConnection(connection);
@@ -60,6 +63,11 @@ public class SQLiteRoomDAO implements RoomDAO{
         PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM Room WHERE id = ?");
         preparedStatement.setInt(1, id);
         int rowsAffected = preparedStatement.executeUpdate();
+        preparedStatement.close();
+        // Delete all reservations for this room
+        preparedStatement = connection.prepareStatement("DELETE FROM Reservation WHERE accommodationId = ?");
+        preparedStatement.setInt(1, id);
+        preparedStatement.executeUpdate();
         preparedStatement.close();
         Database.closeConnection(connection);
         return rowsAffected > 0;

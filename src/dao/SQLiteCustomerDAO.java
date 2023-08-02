@@ -89,6 +89,11 @@ public class SQLiteCustomerDAO implements CustomerDAO{
         preparedStatement.setInt(1, id);
         int rowsAffected = preparedStatement.executeUpdate();
         preparedStatement.close();
+        // Delete all reservations for this customer
+        preparedStatement = connection.prepareStatement("DELETE FROM Reservation WHERE customerId = ?");
+        preparedStatement.setInt(1, id);
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
         Database.closeConnection(connection);
         return rowsAffected > 0;
     }

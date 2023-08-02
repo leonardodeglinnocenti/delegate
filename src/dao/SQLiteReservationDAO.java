@@ -85,7 +85,7 @@ public class SQLiteReservationDAO implements ReservationDAO{
         preparedStatement.setDate(4, Date.valueOf(reservation.getDepartureDate()));
         preparedStatement.setInt(5, reservation.getNumberOfGuests());
         preparedStatement.setInt(6, reservation.getNumberOfChildren());
-        preparedStatement.setInt(7, reservation.getId());
+        preparedStatement.setInt(7, reservation.getCustomerId());
         preparedStatement.setDouble(8, reservation.getPrice());
         preparedStatement.executeUpdate();
         preparedStatement.close();

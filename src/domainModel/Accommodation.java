@@ -3,16 +3,16 @@ package domainModel;
 import java.util.ArrayList;
 
 public abstract class Accommodation {
-    private int id;
+    int id;
     // The id is automatically generated and incremented.
-    private String description;
-    private ArrayList<RefundPolicy> refundPolicies;
+    String description;
+    ArrayList<RefundPolicy> refundPolicies;
     private int maxGuestsAllowed;
 
     public Accommodation(int id, String description, int maxGuestsAllowed) {
         this.id = id;
         this.description = description;
-        this.refundPolicies = new ArrayList<RefundPolicy>();
+        this.refundPolicies = new ArrayList<>();
         this.maxGuestsAllowed = maxGuestsAllowed;
     }
 

@@ -5,7 +5,6 @@ import dao.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Main {
 
@@ -32,10 +31,17 @@ public class Main {
 
         // Create some accommodations
         accommodationHandler.createAccommodation("apartment", "Apartment 1", 4);
-        accommodationHandler.createAccommodation("room","Room 2", 2);
+        int roomPointer = accommodationHandler.createAccommodation("room","Room 2", 2);
         accommodationHandler.createAccommodation("apartment", "Apartment 2", 4);
-        accommodationHandler.createAccommodation("apartment", "Apartment 3", 4);
+        int apartmentPointer = accommodationHandler.createAccommodation("apartment", "Apartment 3", 4);
         accommodationHandler.createAccommodation("room","Room 1", 2);
+
+        // This will fail if everything is working correctly
+        accommodationHandler.createAccommodation("unknown","Room 3", 2);
+
+        // Personalize the accommodation and the room with the pointer
+        accommodationHandler.addApartmentDetails(apartmentPointer, 2, 6, 1, 0);
+        accommodationHandler.addRoomDetails(roomPointer, true, true);
 
         // Create some customers
         customerBook.addCustomer("John Doe", "Reginald St. London", "123456789");
@@ -49,11 +55,11 @@ public class Main {
         // Display all accommodations
         System.out.println("Apartments:");
         for (Apartment apartment : apartments) {
-            System.out.println(apartment.getId() + " " + apartment.getDescription() + " " + apartment.getMaxGuestsAllowed() + " " + apartment.getNumberOfRooms() + " " + apartment.getNumberOfBathrooms() + " " + apartment.getNumberOfBedrooms() + " " + apartment.getNumberOfBeds());
+            apartment.printApartment();
         }
         System.out.println("Rooms:");
         for (Room room : rooms) {
-            System.out.println(room.getId() + " " + room.getDescription() + " " + room.getMaxGuestsAllowed());
+            room.printRoom();
         }
         System.out.println("Customers:");
         for (Customer customer : customerBook.getAllCustomers()) {
@@ -112,6 +118,22 @@ public class Main {
         System.out.println("Reservations for room " + randomRoom.getId() + ":");
         for (Reservation reservation : reservationHandler.getAccommodationReservations(randomRoom.getId())) {
             reservation.printReservation();
+        }
+
+        // This reservation should be deleted when the accommodation is deleted
+        reservationHandler.addReservation(roomPointer, LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 10), 4, 2, 1, 12.90);
+        reservationHandler.addReservation(apartmentPointer, LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 10), 4, 2, 0, 12.90);
+
+        // Delete accommodation with a reservation
+        accommodationHandler.deleteAccommodation(4);
+        accommodationHandler.deleteAccommodation(apartmentPointer);
+        customerBook.deleteCustomer(0);
+        customerBook.deleteCustomer(6);
+
+        // Print all customers
+        System.out.println("All customers:");
+        for (Customer customer : customerBook.getAllCustomers()) {
+            customer.printCustomer();
         }
 
         // Print all reservations

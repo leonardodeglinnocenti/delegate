@@ -27,4 +27,7 @@ public class Customer {
     }
     public String getAddress() { return address; }
     public String getPhone() { return phone; }
+    public void printCustomer() {
+        System.out.println("Customer: " + name + " (id: " + id + ") " + "Address: " + address + " Phone: " + phone);
+    }
 }

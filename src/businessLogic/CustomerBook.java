@@ -33,9 +33,11 @@ public class CustomerBook {
         return customer.getId();
     }
 
-    public Boolean removeCustomer(int id) {
+    public Boolean deleteCustomer(int id) {
         try {
-            customerDAO.delete(id);
+            if(!customerDAO.delete(id)) {
+                return false;
+            }
         } catch (Exception e) {
             System.err.println("ERROR: Could not delete customer.");
             return false;
@@ -47,6 +49,9 @@ public class CustomerBook {
         Customer customer;
         try {
             customer = customerDAO.get(id);
+            if (customer == null) {
+                System.err.println("ERROR: Customer not found.");
+            }
         } catch (Exception e) {
             System.err.println("ERROR: Could not get customer.");
             return null;

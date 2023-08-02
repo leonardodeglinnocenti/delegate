@@ -16,6 +16,10 @@ public class Apartment extends Accommodation {
     private int numberOfBedrooms;
     private int numberOfBeds;
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public int getNumberOfRooms() {
         return numberOfRooms;
     }

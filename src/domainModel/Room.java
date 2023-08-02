@@ -15,6 +15,10 @@ public class Room extends Accommodation {
     private boolean hasPrivateBathroom;
     private boolean hasKitchen;
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public boolean getHasPrivateBathroom() {
         return hasPrivateBathroom;
     }

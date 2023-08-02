@@ -33,9 +33,10 @@ public class SQLiteApartmentDAO implements ApartmentDAO{
     @Override
     public void insert(Apartment apartment) throws Exception {
         // Consider all possible values that an apartment can have
+        apartment.setId(getNextId());
         Connection connection = Database.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Apartment (id, description, maxGuestsAllowed, numberOfRooms, numberOfBathrooms, numberOfBedrooms, numberOfBeds) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        preparedStatement.setInt(1, getNextId());
+        preparedStatement.setInt(1, apartment.getId());
         preparedStatement.setString(2, apartment.getDescription());
         preparedStatement.setInt(3, apartment.getMaxGuestsAllowed());
         preparedStatement.setInt(4, apartment.getNumberOfRooms());
@@ -69,6 +70,11 @@ public class SQLiteApartmentDAO implements ApartmentDAO{
         PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM Apartment WHERE id = ?");
         preparedStatement.setInt(1, id);
         int row = preparedStatement.executeUpdate();
+        preparedStatement.close();
+        // Delete all reservations for this apartment
+        preparedStatement = connection.prepareStatement("DELETE FROM Reservation WHERE accommodationId = ?");
+        preparedStatement.setInt(1, id);
+        preparedStatement.executeUpdate();
         preparedStatement.close();
         Database.closeConnection(connection);
         return row > 0;
