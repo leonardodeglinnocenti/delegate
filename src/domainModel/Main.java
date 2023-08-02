@@ -84,15 +84,41 @@ public class Main {
         }
 
         // Try to book the same apartment for the intersecting period
-        reservationHandler.addReservation(randomApartment.getId(), LocalDate.of(2021, 1, 13), LocalDate.of(2021, 1, 17), 4, 2, randomCustomer.getId(), 12.90);
+        reservationHandler.addReservation(randomApartment.getId(), LocalDate.of(2020, 12, 31), LocalDate.of(2021, 1, 1), 4, 2, randomCustomer.getId(), 12.90);
 
-        // Print all reservations
-        System.out.println("Reservations:");
-        for (Reservation reservation : reservationHandler.getAllReservations()) {
+        // Print all reservations for a given apartment
+        System.out.println("Reservations for apartment " + randomApartment.getId() + ":");
+        for (Reservation reservation : reservationHandler.getAccommodationReservations(randomApartment.getId())) {
             reservation.printReservation();
         }
 
-        
+        // Get random room
+        rooms = roomDAO.getAll();
+        int[] roomIndexes = new int[rooms.size()];
+        for (int i = 0; i < rooms.size(); i++) {
+            roomIndexes[i] = rooms.get(i).getId();
+        }
+        int randomRoomIndex = roomIndexes[(int) (Math.random() * (roomIndexes.length))];
+        System.out.println("Random room index: " + randomRoomIndex);
+        Room randomRoom = roomDAO.get(randomRoomIndex);
+
+        // Create a reservation for the selected room
+        reservationHandler.addReservation(randomRoomIndex, LocalDate.of(2021, 5, 1), LocalDate.of(2021, 5, 10), 2, 1, randomCustomer.getId(), 12.90);
+
+        // Test reservation cancellation
+        reservationHandler.deleteReservation(2);
+
+        // Print all reservations for a given room
+        System.out.println("Reservations for room " + randomRoom.getId() + ":");
+        for (Reservation reservation : reservationHandler.getAccommodationReservations(randomRoom.getId())) {
+            reservation.printReservation();
+        }
+
+        // Print all reservations
+        System.out.println("All reservations:");
+        for (Reservation reservation : reservationHandler.getAllReservations()) {
+            reservation.printReservation();
+        }
     }
 
 }

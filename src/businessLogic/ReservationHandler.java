@@ -97,6 +97,27 @@ public class ReservationHandler {
         }
     }
 
+    public boolean deleteReservation(int reservationId) {
+        // Check whether the reservation exists using ReservationDAO
+        try {
+            if (reservationDAO.get(reservationId) == null) {
+                System.err.println("ERROR: The reservation does not exist.");
+                return false;
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+        // Delete the reservation using ReservationDAO
+        try {
+            reservationDAO.delete(reservationId);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
     // Make function to return all available accommodations of a given type for a given period of time and number of guests
     // Use ReservationDAO to get all the reservations for the given period of time
     public ArrayList<Apartment> getAvailableApartments(LocalDate startDate, LocalDate endDate, int numberOfGuests) {
@@ -142,6 +163,15 @@ public class ReservationHandler {
     public ArrayList<Reservation> getAllReservations() {
         try {
             return reservationDAO.getAll();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            return null;
+        }
+    }
+
+    public ArrayList<Reservation> getAccommodationReservations(int accommodationId) {
+        try {
+            return reservationDAO.getAccommodationReservations(accommodationId);
         } catch (Exception e) {
             System.err.println(e.getMessage());
             return null;
