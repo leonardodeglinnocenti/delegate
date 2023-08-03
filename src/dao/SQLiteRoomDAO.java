@@ -3,8 +3,6 @@ package dao;
 import domainModel.Room;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
-import dao.idGenerator;
 
 public class SQLiteRoomDAO implements RoomDAO{
     @Override

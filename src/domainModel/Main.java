@@ -121,13 +121,13 @@ public class Main {
         }
 
         // This reservation should be deleted when the accommodation is deleted
-        reservationHandler.addReservation(roomPointer, LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 10), 4, 2, 1, 12.90);
+        reservationHandler.addReservation(roomPointer, LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 10), 4, 2, 0, 12.90);
         reservationHandler.addReservation(apartmentPointer, LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 10), 4, 2, 0, 12.90);
 
         // Delete accommodation with a reservation
-        accommodationHandler.deleteAccommodation(4);
+        accommodationHandler.deleteAccommodation(1);
         accommodationHandler.deleteAccommodation(apartmentPointer);
-        customerBook.deleteCustomer(0);
+        // customerBook.deleteCustomer(0);
         customerBook.deleteCustomer(6);
 
         // Print all customers

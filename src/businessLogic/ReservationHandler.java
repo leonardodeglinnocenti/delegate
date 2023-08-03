@@ -38,7 +38,7 @@ public class ReservationHandler {
             return -1;
         }
         // The id passed as a parameter is ignored when passed to the DAO.
-        Reservation reservation = new Reservation(-1, accommodationId, startDate, endDate, numberOfGuests, numberOfChildren, customerId, price);
+        Reservation reservation = new Reservation(-1, accommodationId, startDate, endDate, numberOfGuests, numberOfChildren, customerId, price, LocalDate.now());
 
         // Integrity check for the reservation object
         // Check whether the endDate is after the startDate

@@ -14,9 +14,10 @@ public class Reservation {
     private int numberOfChildren;
     private int customerId;
     double price;
+    private LocalDate dateOfReservation;
 
 
-    public Reservation(int id, int accommodationId, LocalDate arrivalDate, LocalDate departureDate, int numberOfGuests, int numberOfChildren, int customerId, double price) {
+    public Reservation(int id, int accommodationId, LocalDate arrivalDate, LocalDate departureDate, int numberOfGuests, int numberOfChildren, int customerId, double price, LocalDate dateOfReservation) {
         this.id = id;
         this.accommodationId = accommodationId;
         this.arrivalDate = arrivalDate;
@@ -26,6 +27,7 @@ public class Reservation {
         this.customerId = customerId;
         // round price to 2 decimal places
         this.price = Math.round(price * 100.0) / 100.0;
+        this.dateOfReservation = dateOfReservation;
     }
 
     public int getId() {
@@ -52,9 +54,12 @@ public class Reservation {
     public double getPrice() {
         return price;
     }
+    public LocalDate getDateOfReservation() {
+        return dateOfReservation;
+    }
 
     public void printReservation() {
-        System.out.println("Reservation ID: " + this.getId() + " " + this.getAccommodationId() + " " + this.getArrivalDate() + " " + this.getDepartureDate() + " " + this.getNumberOfGuests() + " " + this.getNumberOfChildren() + " " + this.getCustomerId() + " " + this.getPrice());
+        System.out.println("Reservation ID: " + this.getId() + " " + this.getAccommodationId() + " " + this.getArrivalDate() + " " + this.getDepartureDate() + " " + this.getNumberOfGuests() + " " + this.getNumberOfChildren() + " " + this.getCustomerId() + " " + this.getPrice() + " " + this.getDateOfReservation());
     }
 
 }

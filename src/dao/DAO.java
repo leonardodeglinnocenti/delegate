@@ -1,6 +1,5 @@
 package dao;
 import java.util.ArrayList;
-import java.util.List;
 
 public interface DAO<T, ID> {
 
@@ -14,6 +13,6 @@ public interface DAO<T, ID> {
 
     boolean delete(ID id) throws Exception;
 
-    public int getNextId() throws Exception;
+    int getNextId() throws Exception;
 
 }

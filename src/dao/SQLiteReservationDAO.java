@@ -43,11 +43,11 @@ public class SQLiteReservationDAO implements ReservationDAO{
         if (resultSet.next()) {
             ApartmentDAO apartmentDAO = new SQLiteApartmentDAO();
             if (apartmentDAO.get(resultSet.getInt("accommodationId")) != null)
-                reservation = new Reservation(id, apartmentDAO.get(resultSet.getInt("accommodationId")).getId(), resultSet.getDate("arrivalDate").toLocalDate(), resultSet.getDate("departureDate").toLocalDate(), resultSet.getInt("numberOfGuests"), resultSet.getInt("numberOfChildren"), resultSet.getInt("customerId"), resultSet.getDouble("price"));
+                reservation = new Reservation(id, apartmentDAO.get(resultSet.getInt("accommodationId")).getId(), resultSet.getDate("arrivalDate").toLocalDate(), resultSet.getDate("departureDate").toLocalDate(), resultSet.getInt("numberOfGuests"), resultSet.getInt("numberOfChildren"), resultSet.getInt("customerId"), resultSet.getDouble("price"), resultSet.getDate("dateOfReservation").toLocalDate());
             else {
                 RoomDAO roomDAO = new SQLiteRoomDAO();
                 if (roomDAO.get(resultSet.getInt("accommodationId")) != null)
-                    reservation = new Reservation(id, roomDAO.get(resultSet.getInt("accommodationId")).getId(), resultSet.getDate("arrivalDate").toLocalDate(), resultSet.getDate("departureDate").toLocalDate(), resultSet.getInt("numberOfGuests"), resultSet.getInt("numberOfChildren"), resultSet.getInt("customerId"), resultSet.getDouble("price"));
+                    reservation = new Reservation(id, roomDAO.get(resultSet.getInt("accommodationId")).getId(), resultSet.getDate("arrivalDate").toLocalDate(), resultSet.getDate("departureDate").toLocalDate(), resultSet.getInt("numberOfGuests"), resultSet.getInt("numberOfChildren"), resultSet.getInt("customerId"), resultSet.getDouble("price"), resultSet.getDate("dateOfReservation").toLocalDate());
             }
         }
         resultSet.close();
@@ -65,7 +65,7 @@ public class SQLiteReservationDAO implements ReservationDAO{
         ResultSet resultSet = statement.executeQuery("SELECT * FROM Reservation");
 
         while(resultSet.next()){
-            reservations.add(new Reservation(resultSet.getInt("id"), resultSet.getInt("accommodationId"), resultSet.getDate("arrivalDate").toLocalDate(), resultSet.getDate("departureDate").toLocalDate(), resultSet.getInt("numberOfGuests"), resultSet.getInt("numberOfChildren"), resultSet.getInt("customerId"), resultSet.getDouble("price")));
+            reservations.add(new Reservation(resultSet.getInt("id"), resultSet.getInt("accommodationId"), resultSet.getDate("arrivalDate").toLocalDate(), resultSet.getDate("departureDate").toLocalDate(), resultSet.getInt("numberOfGuests"), resultSet.getInt("numberOfChildren"), resultSet.getInt("customerId"), resultSet.getDouble("price"), resultSet.getDate("dateOfReservation").toLocalDate()));
         }
 
         resultSet.close();
@@ -77,7 +77,7 @@ public class SQLiteReservationDAO implements ReservationDAO{
     @Override
     public void insert(Reservation reservation) throws Exception {
         Connection connection = Database.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Reservation (id, accommodationId, arrivalDate, departureDate, numberOfGuests, numberOfChildren, customerId, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Reservation (id, accommodationId, arrivalDate, departureDate, numberOfGuests, numberOfChildren, customerId, price, dateOfReservation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         // Get the next id using idGenerator and ignore the id passed as a parameter
         preparedStatement.setInt(1, getNextId());
         preparedStatement.setInt(2, reservation.getAccommodationId());
@@ -87,6 +87,7 @@ public class SQLiteReservationDAO implements ReservationDAO{
         preparedStatement.setInt(6, reservation.getNumberOfChildren());
         preparedStatement.setInt(7, reservation.getCustomerId());
         preparedStatement.setDouble(8, reservation.getPrice());
+        preparedStatement.setDate(9, Date.valueOf(reservation.getDateOfReservation()));
         preparedStatement.executeUpdate();
         preparedStatement.close();
         Database.closeConnection(connection);
@@ -183,7 +184,7 @@ public class SQLiteReservationDAO implements ReservationDAO{
         ResultSet resultSet = preparedStatement.executeQuery();
         ArrayList<Reservation> reservations = new ArrayList<>();
         while(resultSet.next()){
-            reservations.add(new Reservation(resultSet.getInt("id"), resultSet.getInt("accommodationId"), resultSet.getDate("arrivalDate").toLocalDate(), resultSet.getDate("departureDate").toLocalDate(), resultSet.getInt("numberOfGuests"), resultSet.getInt("numberOfChildren"), resultSet.getInt("customerId"), resultSet.getDouble("price")));
+            reservations.add(new Reservation(resultSet.getInt("id"), resultSet.getInt("accommodationId"), resultSet.getDate("arrivalDate").toLocalDate(), resultSet.getDate("departureDate").toLocalDate(), resultSet.getInt("numberOfGuests"), resultSet.getInt("numberOfChildren"), resultSet.getInt("customerId"), resultSet.getDouble("price"), resultSet.getDate("dateOfReservation").toLocalDate()));
         }
         resultSet.close();
         preparedStatement.close();
