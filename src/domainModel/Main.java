@@ -29,6 +29,17 @@ public class Main {
         // Instantiate ReservationHandler
         ReservationHandler reservationHandler = ReservationHandler.getInstance(reservationDAO, customerBook);
 
+        // Create an accommodation
+        int apartmentPointer = accommodationHandler.createAccommodation("apartment", "Cosy apt", 6);
+        reservationHandler.importFromAirbnb("/home/leonardo/Downloads/airbnb_tax_06_2023-08_2023.csv", "/home/leonardo/Downloads/reservations(1).csv", apartmentPointer, 5.50);
+
+        // Print all reservations
+        ArrayList<Reservation> reservations = reservationHandler.getAllReservations();
+        for (Reservation reservation : reservations) {
+            reservation.printReservation();
+        }
+
+        /*
         // Create some accommodations
         accommodationHandler.createAccommodation("apartment", "Apartment 1", 4);
         int roomPointer = accommodationHandler.createAccommodation("room","Room 2", 2);
@@ -141,6 +152,7 @@ public class Main {
         for (Reservation reservation : reservationHandler.getAllReservations()) {
             reservation.printReservation();
         }
+         */
     }
 
 }

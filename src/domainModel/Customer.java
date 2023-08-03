@@ -30,4 +30,8 @@ public class Customer {
     public void printCustomer() {
         System.out.println("Customer: " + name + " (id: " + id + ") " + "Address: " + address + " Phone: " + phone);
     }
+
+    public void setId(int nextId) {
+        this.id = nextId;
+    }
 }

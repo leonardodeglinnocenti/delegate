@@ -59,7 +59,7 @@ public class Reservation {
     }
 
     public void printReservation() {
-        System.out.println("Reservation ID: " + this.getId() + " " + this.getAccommodationId() + " " + this.getArrivalDate() + " " + this.getDepartureDate() + " " + this.getNumberOfGuests() + " " + this.getNumberOfChildren() + " " + this.getCustomerId() + " " + this.getPrice() + " " + this.getDateOfReservation());
+        System.out.println("Reservation ID: " + this.getId() + " ID(" + this.getAccommodationId() + ") from " + this.getArrivalDate() + " to " + this.getDepartureDate() + " for " + this.getNumberOfGuests() + " people of which " + this.getNumberOfChildren() + " children, customerId: " + this.getCustomerId() + " for " + this.getPrice() + "€, booked: " + this.getDateOfReservation());
     }
 
 }

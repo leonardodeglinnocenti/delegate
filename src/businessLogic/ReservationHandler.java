@@ -1,12 +1,13 @@
 package businessLogic;
 
 import dao.ReservationDAO;
-import domainModel.Accommodation;
 import domainModel.Apartment;
 import domainModel.Reservation;
 import domainModel.Room;
 
+import java.io.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class ReservationHandler {
@@ -176,6 +177,124 @@ public class ReservationHandler {
             System.err.println(e.getMessage());
             return null;
         }
+    }
+
+    // The following method allows the user to import reservations from an Airbnb csv file
+    public boolean importFromAirbnb(String taxesFilePath, String reservationFilePath, int apartmentId, double localCityTax) throws FileNotFoundException, IOException {
+        // Open file and read line by line
+        // For each line, create a reservation and add it to the database
+        // The apartmentId is the id of the apartment that the reservations refer to
+        // The file is in the format: data of interest are separated by commas
+        // The first line is the header, so it is skipped
+        // The data of interest are: Data (which is the date of the reservation), Arrivo (which is the check-in time), Notti (which is the number of nights), Ospite (which is the number of guests), Guadagno lordo (which is the price)
+        // The date is in the format: mm/dd/yyyy
+
+        // Open files
+        BufferedReader br0, br1;
+        try {
+            br0 = new BufferedReader(new FileReader(taxesFilePath));
+        } catch (FileNotFoundException e) {
+            System.err.println("ERROR: The file does not exist.");
+            return false;
+        }
+        try {
+            br1 = new BufferedReader(new FileReader(reservationFilePath));
+        } catch (FileNotFoundException e) {
+            System.err.println("ERROR: The file does not exist.");
+            return false;
+        }
+
+        // Skip the first line of both files
+        try {
+            br0.readLine();
+            br1.readLine();
+        } catch (IOException e) {
+            System.err.println("ERROR: The file is empty.");
+            return false;
+        }
+
+        // Create a temporary file
+        File tempFile = new File("temp.csv");
+
+        // Create a buffered writer to write to the temporary file
+        BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
+
+        String line, apartmentName = null;
+        ArrayList<String[]> data0 = new ArrayList<>();
+        ArrayList<String[]> data1 = new ArrayList<>();
+        String[] data;
+        while ((line = br0.readLine()) != null) {
+            data = line.split(",");
+            // Get data from data[6] until the next double quote (this allows to get the name of the apartment even if it contains commas)
+            apartmentName = data[6] + ",";
+            int i = 7;
+            while (!data[i].contains("\"")) {
+                apartmentName = apartmentName + data[i] + ",";
+                i++;
+            }
+            apartmentName = apartmentName + data[i];
+            line = line.replaceAll("\"[^\"]*\"", "");
+            data0.add(line.split(","));
+        }
+        while ((line = br1.readLine()) != null) {
+            line = line.replaceAll(apartmentName, "");
+            // Delete all double quotes
+            line = line.replaceAll("\"", "");
+            data1.add(line.split(","));
+        }
+
+        // Merge the two files in the temporary file using data0[2] and data1[0] as keys
+        for (String[] data0Line : data0) {
+            for (String[] data1Line : data1) {
+                if (data0Line[2].equals(data1Line[0])) {
+                    for (String s : data0Line) {
+                        bw.write(s + ",");
+                    }
+                    for (String s : data1Line) {
+                        bw.write(s + ",");
+                    }
+                    bw.newLine();
+                }
+            }
+        }
+
+        // Close the buffered writer
+        bw.close();
+
+        // Read from the temporary file
+        BufferedReader tempData = new BufferedReader(new FileReader(tempFile));
+        // Read the file line by line until the end
+        while ((line = tempData.readLine()) != null) {
+            // Delete data between double quotes
+            // Split the line by commas
+            data = line.split(",");
+            // Get the date
+            String dateOfReservationString = data[26];
+            LocalDate dateOfReservation = LocalDate.parse(dateOfReservationString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            // Get the check-in time
+            String arrivalDateString = data[3];
+            LocalDate arrivalDate = LocalDate.parse(arrivalDateString, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+            // Get the number of nights
+            int numberOfNights = Integer.parseInt(data[4]);
+            LocalDate departureDate = arrivalDate.plusDays(numberOfNights);
+            // Get the number of guests and children
+            int numberOfGuests = Integer.parseInt(data[20]) + Integer.parseInt(data[21]) + Integer.parseInt(data[22]);
+            int numberOfChildren = Integer.parseInt(data[21]) + Integer.parseInt(data[22]);
+            // Get the price
+            double price = Double.parseDouble(data[14]);
+            // Create a new customer
+            int customerId = customerBook.addCustomer(data[5], "", data[19]);
+            // Create a reservation, remember that the id is automatically generated by the database
+            Reservation reservation = new Reservation(-1, apartmentId, arrivalDate, departureDate, numberOfGuests, numberOfChildren, customerId, price, dateOfReservation);
+            // Add the reservation to the database
+            try {
+                reservationDAO.insert(reservation);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                return false;
+            }
+        }
+        return false;
     }
 
 }

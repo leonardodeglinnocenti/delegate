@@ -59,8 +59,9 @@ public class SQLiteCustomerDAO implements CustomerDAO{
     @Override
     public void insert(Customer customer) throws Exception {
         Connection connection = Database.getConnection();
+        customer.setId(getNextId());
         PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Customer (id, name, address, phone) VALUES (?, ?, ?, ?)");
-        preparedStatement.setInt(1, getNextId());
+        preparedStatement.setInt(1, customer.getId());
         preparedStatement.setString(2, customer.getName());
         preparedStatement.setString(3, customer.getAddress());
         preparedStatement.setString(4, customer.getPhone());
