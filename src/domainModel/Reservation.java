@@ -55,8 +55,12 @@ public class Reservation {
     public double getPrice() {
         return price;
     }
+    public void setPrice(double price) { this.price = price; }
     public LocalDate getDateOfReservation() {
         return dateOfReservation;
+    }
+    public void setDateOfReservation(LocalDate dateOfReservation) {
+        this.dateOfReservation = dateOfReservation;
     }
     public double getCityTaxAmount() {
         return cityTaxAmount;

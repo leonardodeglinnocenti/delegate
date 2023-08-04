@@ -13,4 +13,6 @@ public interface ReservationDAO extends DAO<Reservation, Integer>{
     ArrayList<Apartment> getAvailableApartments(LocalDate startDate, LocalDate endDate, int numberOfGuests) throws Exception;
     ArrayList<Room> getAvailableRooms(LocalDate startDate, LocalDate endDate, int numberOfGuests) throws Exception;
     ArrayList<Reservation> getAccommodationReservations(int accommodationId) throws Exception;
+    ArrayList<Reservation> getAccommodationMonthReservations(int accommodationId, int month, int year) throws Exception;
+    Reservation findReservationByPeriod(Accommodation accommodation, LocalDate startDate, LocalDate endDate) throws Exception;
 }

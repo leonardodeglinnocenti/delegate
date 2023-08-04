@@ -2,6 +2,8 @@ package domainModel;
 
 import businessLogic.*;
 import dao.*;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Main {
@@ -27,10 +29,13 @@ public class Main {
         // Instantiate ReservationHandler
         ReservationHandler reservationHandler = ReservationHandler.getInstance(reservationDAO, customerBook);
 
+        // Instantiate AccountingHandler
+        AccountingHandler accountingHandler = AccountingHandler.getInstance(reservationHandler);
+
         // Create an accommodation
         int apartmentPointer = accommodationHandler.createAccommodation("apartment", "Cosy apt", 6);
         Accommodation accommodationPointer = accommodationHandler.getAccommodationById(apartmentPointer);
-        reservationHandler.importFromAirbnb(accommodationPointer, "/home/leonardo/Downloads/airbnb_tax_06_2023-08_2023.csv", "/home/leonardo/Downloads/reservations(1).csv");
+        reservationHandler.importFromAirbnb(accommodationPointer, "/home/leonardo/Downloads/airbnb_tax_01_2023-08_2023.csv", "/home/leonardo/Downloads/reservations.csv");
 
         // Print all reservations
         ArrayList<Reservation> reservations = reservationHandler.getAllReservations();
@@ -38,6 +43,14 @@ public class Main {
             reservation.printReservation();
         }
 
+        // Print all customers
+        ArrayList<Customer> customers = customerBook.getAllCustomers();
+        for (Customer customer : customers) {
+            customer.printCustomer();
+        }
+
+        // Evaluate the city tax using the accounting handler
+        accountingHandler.evaluateCityTaxMonthlyDeclaration(accommodationHandler.getAccommodationById(apartmentPointer), 2, 2023, 4, 7);
 
         /*
         // Create some accommodations
