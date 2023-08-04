@@ -2,6 +2,7 @@ package businessLogic;
 
 import dao.ApartmentDAO;
 import dao.RoomDAO;
+import domainModel.Accommodation;
 import domainModel.Apartment;
 import domainModel.Room;
 
@@ -91,6 +92,23 @@ public class AccommodationHandler {
             return null;
         }
         return rooms;
+    }
+
+    public Accommodation getAccommodationById(int id) {
+        Accommodation accommodation;
+        try {
+            accommodation = apartmentDAO.get(id);
+            if (accommodation == null) {
+                accommodation = roomDAO.get(id);
+            }
+            if (accommodation == null) {
+                System.err.println("ERROR: Accommodation not found.");
+            }
+        } catch (Exception e) {
+            System.err.println("ERROR: Could not get accommodation.");
+            return null;
+        }
+        return accommodation;
     }
 
     public Apartment getApartmentById(int id) {

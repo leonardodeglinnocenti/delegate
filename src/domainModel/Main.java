@@ -2,8 +2,6 @@ package domainModel;
 
 import businessLogic.*;
 import dao.*;
-
-import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Main {
@@ -31,7 +29,8 @@ public class Main {
 
         // Create an accommodation
         int apartmentPointer = accommodationHandler.createAccommodation("apartment", "Cosy apt", 6);
-        reservationHandler.importFromAirbnb(apartmentPointer, "/home/leonardo/Downloads/airbnb_tax_06_2023-08_2023.csv", "/home/leonardo/Downloads/reservations(1).csv", 5.50);
+        Accommodation accommodationPointer = accommodationHandler.getAccommodationById(apartmentPointer);
+        reservationHandler.importFromAirbnb(accommodationPointer, "/home/leonardo/Downloads/airbnb_tax_06_2023-08_2023.csv", "/home/leonardo/Downloads/reservations(1).csv");
 
         // Print all reservations
         ArrayList<Reservation> reservations = reservationHandler.getAllReservations();

@@ -22,15 +22,15 @@ public class CustomerBook {
         return instance;
     }
 
-    public int addCustomer(String name, String address, String phone) {
+    public Customer addCustomer(String name, String address, String phone) {
         Customer customer = new Customer(-1, name, address, phone);
         try {
             customerDAO.insert(customer);
         } catch (Exception e) {
             System.err.println("ERROR: Could not insert customer.");
-            return -1;
+            return null;
         }
-        return customer.getId();
+        return customer;
     }
 
     public Boolean deleteCustomer(int id) {

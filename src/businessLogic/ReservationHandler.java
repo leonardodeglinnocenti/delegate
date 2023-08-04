@@ -1,9 +1,7 @@
 package businessLogic;
 
 import dao.ReservationDAO;
-import domainModel.Apartment;
-import domainModel.Reservation;
-import domainModel.Room;
+import domainModel.*;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -35,11 +33,11 @@ public class ReservationHandler {
         return instance;
     }
 
-    public int addReservation(int accommodationId, LocalDate startDate, LocalDate endDate, int numberOfGuests, int numberOfChildren, int customerId, double price, double cityTax) {
+    public int addReservation(Accommodation accommodation, LocalDate startDate, LocalDate endDate, int numberOfGuests, int numberOfChildren, Customer customer, double price, double cityTax) {
         // check if the accommodation is available for the given dates using ReservationDAO
         // this function returns the id of the reservation if the accommodation is available, -1 otherwise
         try {
-            reservationDAO.checkAvailability(accommodationId, startDate, endDate);
+            reservationDAO.checkAvailability(accommodation, startDate, endDate);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return -1;
@@ -71,15 +69,10 @@ public class ReservationHandler {
             System.err.println("ERROR: The price must be greater or equal to 0.");
             return -1;
         }
-        // Check whether the customer exists using CustomerBook
-        if (customerBook.getCustomer(customerId) == null) {
-            System.err.println("ERROR: The customer does not exist.");
-            return -1;
-        }
         // Check whether the apartment is available for the given dates using ReservationDAO
         // this function returns the id of the reservation if the apartment is available, -1 otherwise
         try {
-            if (!reservationDAO.checkAvailability(accommodationId, startDate, endDate)) {
+            if (!reservationDAO.checkAvailability(accommodation, startDate, endDate)) {
                 System.err.println("ERROR: The apartment is not available for the given dates.");
                 return -1;
             }
@@ -88,7 +81,7 @@ public class ReservationHandler {
             return -1;
         }
         // The id passed as a parameter is ignored when passed to the DAO.
-        Reservation reservation = new Reservation(-1, accommodationId, startDate, endDate, numberOfGuests, numberOfChildren, customerId, price, LocalDate.now(), cityTax);
+        Reservation reservation = new Reservation(-1, accommodation, startDate, endDate, numberOfGuests, numberOfChildren, customer, price, LocalDate.now(), cityTax);
 
         try {
             reservationDAO.insert(reservation);
@@ -187,7 +180,7 @@ public class ReservationHandler {
     }
 
     // The following method allows the user to import data from Airbnb
-    public boolean importFromAirbnb(int apartmentId, String taxesFilePath, String reservationsFilePath, double localCityTax) throws FileNotFoundException, IOException {
+    public boolean importFromAirbnb(Accommodation accommodation, String taxesFilePath, String reservationsFilePath) throws IOException {
 
         String confirmationCodeRecordTaxesFile = "Codice di conferma"; // taxes file
         String confirmationCodeRecordReservationsFile = "Codice di Conferma"; // reservations file
@@ -272,10 +265,10 @@ public class ReservationHandler {
             double cityTaxAmount = Double.parseDouble(record.get("CITY_TAX"));
 
             // Create a new customer
-            int customerId = customerBook.addCustomer(guestName, "", phoneNumber);
+            Customer customer = customerBook.addCustomer(guestName, "", phoneNumber);
 
             // Create a new reservation
-            Reservation reservation = new Reservation(-1, apartmentId, arrivalDate, departureDate, numberOfGuests, numberOfChildren, customerId, price, reservationDate, cityTaxAmount);
+            Reservation reservation = new Reservation(-1, accommodation, arrivalDate, departureDate, numberOfGuests, numberOfChildren, customer, price, reservationDate, cityTaxAmount);
             // Add the reservation to the database
             try {
                 reservationDAO.insert(reservation);

@@ -6,26 +6,26 @@ import dao.RoomDAO;
 
 public class Reservation {
     private final int id;
-    private int accommodationId;
+    private Accommodation accommodation;
     private LocalDate arrivalDate;
     private LocalDate departureDate;
     // numberOfGuests and numberOfChildren are the total number of guests and children, respectively.
     private int numberOfGuests;
     private int numberOfChildren;
-    private int customerId;
+    private Customer customer;
     private double price;
     private LocalDate dateOfReservation;
     private double cityTaxAmount;
 
 
-    public Reservation(int id, int accommodationId, LocalDate arrivalDate, LocalDate departureDate, int numberOfGuests, int numberOfChildren, int customerId, double price, LocalDate dateOfReservation, double cityTaxAmount) {
+    public Reservation(int id, Accommodation accommodation, LocalDate arrivalDate, LocalDate departureDate, int numberOfGuests, int numberOfChildren, Customer customer, double price, LocalDate dateOfReservation, double cityTaxAmount) {
         this.id = id;
-        this.accommodationId = accommodationId;
+        this.accommodation = accommodation;
         this.arrivalDate = arrivalDate;
         this.departureDate = departureDate;
         this.numberOfGuests = numberOfGuests;
         this.numberOfChildren = numberOfChildren;
-        this.customerId = customerId;
+        this.customer = customer;
         this.price = price;
         this.dateOfReservation = dateOfReservation;
         this.cityTaxAmount = cityTaxAmount;
@@ -34,8 +34,8 @@ public class Reservation {
     public int getId() {
         return id;
     }
-    public int getAccommodationId() {
-        return accommodationId;
+    public Accommodation getAccommodation() {
+        return accommodation;
     }
     public LocalDate getArrivalDate() {
         return arrivalDate;
@@ -49,8 +49,8 @@ public class Reservation {
     public int getNumberOfChildren() {
         return numberOfChildren;
     }
-    public int getCustomerId() {
-        return customerId;
+    public Customer getCustomer() {
+        return customer;
     }
     public double getPrice() {
         return price;
@@ -66,7 +66,7 @@ public class Reservation {
     }
 
     public void printReservation() {
-        System.out.println("Reservation ID: " + this.getId() + " ID(" + this.getAccommodationId() + ") from " + this.getArrivalDate() + " to " + this.getDepartureDate() + " for " + this.getNumberOfGuests() + " people of which " + this.getNumberOfChildren() + " children, customerId: " + this.getCustomerId() + " for " + this.getPrice() + "€, booked: " + this.getDateOfReservation() + ", city tax: " + this.getCityTaxAmount() + "€");
+        System.out.println("Reservation ID: " + this.getId() + " ID(" + this.accommodation.id + ") from " + this.getArrivalDate() + " to " + this.getDepartureDate() + " for " + this.getNumberOfGuests() + " people of which " + this.getNumberOfChildren() + " children, customerId: " + this.customer.getId() + " for " + this.getPrice() + "€, booked: " + this.getDateOfReservation() + ", city tax: " + this.getCityTaxAmount() + "€");
     }
 
 }
