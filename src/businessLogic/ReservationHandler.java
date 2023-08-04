@@ -10,6 +10,12 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+// Import Apache Commons for managing CSV files
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
+
 public class ReservationHandler {
 
     // This class is a singleton
@@ -179,113 +185,88 @@ public class ReservationHandler {
         }
     }
 
-    // The following method allows the user to import reservations from an Airbnb csv file
-    public boolean importFromAirbnb(String taxesFilePath, String reservationFilePath, int apartmentId, double localCityTax) throws FileNotFoundException, IOException {
-        // Open file and read line by line
-        // For each line, create a reservation and add it to the database
-        // The apartmentId is the id of the apartment that the reservations refer to
-        // The file is in the format: data of interest are separated by commas
-        // The first line is the header, so it is skipped
-        // The data of interest are: Data (which is the date of the reservation), Arrivo (which is the check-in time), Notti (which is the number of nights), Ospite (which is the number of guests), Guadagno lordo (which is the price)
-        // The date is in the format: mm/dd/yyyy
+    // The following method allows the user to import data from Airbnb
+    public boolean importFromAirbnb(int apartmentId, String taxesFilePath, String reservationsFilePath, double localCityTax) throws FileNotFoundException, IOException {
 
-        // Open files
-        BufferedReader br0, br1;
+        String confirmationCodeRecordTaxesFile = "Codice di conferma"; // taxes file
+        String confirmationCodeRecordReservationsFile = "Codice di Conferma"; // reservations file
+        String dateOfReservationRecord = "Prenotata"; // reservations file
+        String arrivalDateRecord = "Arrivo"; // taxes file
+        String departureDateRecord = "";
+        String numberOfAdultsRecord = "N. di adulti"; // reservations file
+        String numberOfChildrenRecord = "N. di bambini"; // reservations file
+        String numberOfInfantsRecord = "N. di neonati"; // reservations file
+        String numberOfNightRecord = "N. di notti"; // reservations file
+        String guestNameRecord = "Nome dell'ospite"; // reservations file
+        String phoneNumberRecord = "Contatti"; // reservations file
+        String priceRecord = "Guadagno lordo"; // taxes file
+        String cityTaxRecord = "Tasse di Soggiorno"; // taxes file
+
+        BufferedReader taxesFileReader;
+        BufferedReader reservationsFileReader;
+
         try {
-            br0 = new BufferedReader(new FileReader(taxesFilePath));
+            taxesFileReader = new BufferedReader(new FileReader(taxesFilePath));
+            reservationsFileReader = new BufferedReader(new FileReader(reservationsFilePath));
         } catch (FileNotFoundException e) {
             System.err.println("ERROR: The file does not exist.");
             return false;
         }
-        try {
-            br1 = new BufferedReader(new FileReader(reservationFilePath));
-        } catch (FileNotFoundException e) {
-            System.err.println("ERROR: The file does not exist.");
-            return false;
-        }
 
-        // Skip the first line of both files
-        try {
-            br0.readLine();
-            br1.readLine();
-        } catch (IOException e) {
-            System.err.println("ERROR: The file is empty.");
-            return false;
-        }
+        // get the csv parser
+        CSVParser csvParserTaxes = new CSVParser(taxesFileReader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim());
+        CSVParser csvParserReservations = new CSVParser(reservationsFileReader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim());
 
-        // Create a temporary file
+        // Create a new temporary file to store the merged file
         File tempFile = new File("temp.csv");
 
-        // Create a buffered writer to write to the temporary file
-        BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
+        // Create a new writer
+        CSVPrinter csvPrinter = new CSVPrinter(new FileWriter(tempFile), CSVFormat.DEFAULT.withHeader("CODE", "RESERVATION_DATE", "ARRIVAL_DATE", "DEPARTURE_DATE", "NUMBER_OF_ADULTS", "NUMBER_OF_CHILDREN", "NUMBER_OF_INFANTS", "NUMBER_OF_NIGHTS", "GUEST_NAME", "PHONE_NUMBER", "PRICE", "CITY_TAX"));
 
-        String line, apartmentName = null;
-        ArrayList<String[]> data0 = new ArrayList<>();
-        ArrayList<String[]> data1 = new ArrayList<>();
-        String[] data;
-        while ((line = br0.readLine()) != null) {
-            data = line.split(",");
-            // Get data from data[6] until the next double quote (this allows to get the name of the apartment even if it contains commas)
-            apartmentName = data[6] + ",";
-            int i = 7;
-            while (!data[i].contains("\"")) {
-                apartmentName = apartmentName + data[i] + ",";
-                i++;
-            }
-            apartmentName = apartmentName + data[i];
-            line = line.replaceAll("\"[^\"]*\"", "");
-            data0.add(line.split(","));
-        }
-        while ((line = br1.readLine()) != null) {
-            line = line.replaceAll(apartmentName, "");
-            // Delete all double quotes
-            line = line.replaceAll("\"", "");
-            data1.add(line.split(","));
+        // Store all records in csvParserReservations inside a CSVRecord[]
+        ArrayList<CSVRecord> csvReservationsRecords = new ArrayList<>();
+        for (CSVRecord reservationRecord : csvParserReservations) {
+            csvReservationsRecords.add(reservationRecord);
         }
 
-        // Merge the two files in the temporary file using data0[2] and data1[0] as keys
-        for (String[] data0Line : data0) {
-            for (String[] data1Line : data1) {
-                if (data0Line[2].equals(data1Line[0])) {
-                    for (String s : data0Line) {
-                        bw.write(s + ",");
-                    }
-                    for (String s : data1Line) {
-                        bw.write(s + ",");
-                    }
-                    bw.newLine();
+        // Merge the files by matching the confirmation code
+        for (CSVRecord taxesRecord : csvParserTaxes) {
+            String confirmationCode = taxesRecord.get(confirmationCodeRecordTaxesFile);
+            for (CSVRecord reservationsRecord : csvReservationsRecords) {
+                if (reservationsRecord.get(confirmationCodeRecordReservationsFile).equals(confirmationCode)) {
+                    // Evaluate departure date
+                    String departureDate = LocalDate.parse(taxesRecord.get(arrivalDateRecord), DateTimeFormatter.ofPattern("MM/dd/yyyy")).plusDays(Integer.parseInt(reservationsRecord.get(numberOfNightRecord))).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+                    csvPrinter.printRecord(confirmationCode, reservationsRecord.get(dateOfReservationRecord), taxesRecord.get(arrivalDateRecord), departureDate, reservationsRecord.get(numberOfAdultsRecord), reservationsRecord.get(numberOfChildrenRecord), reservationsRecord.get(numberOfInfantsRecord), reservationsRecord.get(numberOfNightRecord), reservationsRecord.get(guestNameRecord), reservationsRecord.get(phoneNumberRecord), taxesRecord.get(priceRecord), taxesRecord.get(cityTaxRecord));
+                    break;
                 }
             }
         }
+        // Close the parsers and the printer
+        csvParserReservations.close();
+        csvParserTaxes.close();
+        csvPrinter.close();
 
-        // Close the buffered writer
-        bw.close();
+        // Open the newly created file and store the reservations in the database
+        BufferedReader tempFileReader = new BufferedReader(new FileReader(tempFile));
+        CSVParser csvParserTempFile = new CSVParser(tempFileReader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim());
 
-        // Read from the temporary file
-        BufferedReader tempData = new BufferedReader(new FileReader(tempFile));
-        // Read the file line by line until the end
-        while ((line = tempData.readLine()) != null) {
-            // Delete data between double quotes
-            // Split the line by commas
-            data = line.split(",");
-            // Get the date
-            String dateOfReservationString = data[26];
-            LocalDate dateOfReservation = LocalDate.parse(dateOfReservationString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            // Get the check-in time
-            String arrivalDateString = data[3];
-            LocalDate arrivalDate = LocalDate.parse(arrivalDateString, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
-            // Get the number of nights
-            int numberOfNights = Integer.parseInt(data[4]);
-            LocalDate departureDate = arrivalDate.plusDays(numberOfNights);
-            // Get the number of guests and children
-            int numberOfGuests = Integer.parseInt(data[20]) + Integer.parseInt(data[21]) + Integer.parseInt(data[22]);
-            int numberOfChildren = Integer.parseInt(data[21]) + Integer.parseInt(data[22]);
-            // Get the price
-            double price = Double.parseDouble(data[14]);
+        for (CSVRecord record : csvParserTempFile) {
+            // Get the data from the record
+            LocalDate reservationDate = LocalDate.parse(record.get("RESERVATION_DATE"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            LocalDate arrivalDate = LocalDate.parse(record.get("ARRIVAL_DATE"), DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+            LocalDate departureDate = LocalDate.parse(record.get("DEPARTURE_DATE"), DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+            int numberOfAdults = Integer.parseInt(record.get("NUMBER_OF_ADULTS"));
+            int numberOfChildren = Integer.parseInt(record.get("NUMBER_OF_CHILDREN")) + Integer.parseInt(record.get("NUMBER_OF_INFANTS"));
+            String guestName = record.get("GUEST_NAME");
+            String phoneNumber = record.get("PHONE_NUMBER");
+            double price = Double.parseDouble(record.get("PRICE"));
+            double cityTax = Double.parseDouble(record.get("CITY_TAX")); // TODO: use this
+
             // Create a new customer
-            int customerId = customerBook.addCustomer(data[5], "", data[19]);
-            // Create a reservation, remember that the id is automatically generated by the database
-            Reservation reservation = new Reservation(-1, apartmentId, arrivalDate, departureDate, numberOfGuests, numberOfChildren, customerId, price, dateOfReservation);
+            int customerId = customerBook.addCustomer(guestName, "", phoneNumber);
+
+            // Create a new reservation
+            Reservation reservation = new Reservation(-1, apartmentId, arrivalDate, departureDate, numberOfAdults, numberOfChildren, customerId, price, reservationDate);
             // Add the reservation to the database
             try {
                 reservationDAO.insert(reservation);
@@ -294,7 +275,14 @@ public class ReservationHandler {
                 return false;
             }
         }
-        return false;
+
+        // Delete the temporary file
+        tempFile.delete();
+
+        // Close the parser
+        csvParserTempFile.close();
+
+        return true;
     }
 
 }
