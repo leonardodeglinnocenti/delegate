@@ -13,11 +13,12 @@ public class Reservation {
     private int numberOfGuests;
     private int numberOfChildren;
     private int customerId;
-    double price;
+    private double price;
     private LocalDate dateOfReservation;
+    private double cityTaxAmount;
 
 
-    public Reservation(int id, int accommodationId, LocalDate arrivalDate, LocalDate departureDate, int numberOfGuests, int numberOfChildren, int customerId, double price, LocalDate dateOfReservation) {
+    public Reservation(int id, int accommodationId, LocalDate arrivalDate, LocalDate departureDate, int numberOfGuests, int numberOfChildren, int customerId, double price, LocalDate dateOfReservation, double cityTaxAmount) {
         this.id = id;
         this.accommodationId = accommodationId;
         this.arrivalDate = arrivalDate;
@@ -25,9 +26,9 @@ public class Reservation {
         this.numberOfGuests = numberOfGuests;
         this.numberOfChildren = numberOfChildren;
         this.customerId = customerId;
-        // round price to 2 decimal places
-        this.price = Math.round(price * 100.0) / 100.0;
+        this.price = price;
         this.dateOfReservation = dateOfReservation;
+        this.cityTaxAmount = cityTaxAmount;
     }
 
     public int getId() {
@@ -57,9 +58,15 @@ public class Reservation {
     public LocalDate getDateOfReservation() {
         return dateOfReservation;
     }
+    public double getCityTaxAmount() {
+        return cityTaxAmount;
+    }
+    public void setCityTaxAmount(double cityTaxAmount) {
+        this.cityTaxAmount = cityTaxAmount;
+    }
 
     public void printReservation() {
-        System.out.println("Reservation ID: " + this.getId() + " ID(" + this.getAccommodationId() + ") from " + this.getArrivalDate() + " to " + this.getDepartureDate() + " for " + this.getNumberOfGuests() + " people of which " + this.getNumberOfChildren() + " children, customerId: " + this.getCustomerId() + " for " + this.getPrice() + "€, booked: " + this.getDateOfReservation());
+        System.out.println("Reservation ID: " + this.getId() + " ID(" + this.getAccommodationId() + ") from " + this.getArrivalDate() + " to " + this.getDepartureDate() + " for " + this.getNumberOfGuests() + " people of which " + this.getNumberOfChildren() + " children, customerId: " + this.getCustomerId() + " for " + this.getPrice() + "€, booked: " + this.getDateOfReservation() + ", city tax: " + this.getCityTaxAmount() + "€");
     }
 
 }

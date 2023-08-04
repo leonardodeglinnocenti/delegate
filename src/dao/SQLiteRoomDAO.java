@@ -32,10 +32,12 @@ public class SQLiteRoomDAO implements RoomDAO{
     public void insert(Room room) throws Exception {
         Connection connection = Database.getConnection();
         room.setId(getNextId());
-        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Room (id, description, maxGuestsAllowed) VALUES (?, ?, ?)");
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Room (id, description, maxGuestsAllowed, hasPrivateBathroom, hasKitchen) VALUES (?, ?, ?, ?, ?)");
         preparedStatement.setInt(1, room.getId());
         preparedStatement.setString(2, room.getDescription());
         preparedStatement.setInt(3, room.getMaxGuestsAllowed());
+        preparedStatement.setBoolean(4, room.getHasPrivateBathroom());
+        preparedStatement.setBoolean(5, room.getHasKitchen());
         preparedStatement.executeUpdate();
         preparedStatement.close();
         Database.closeConnection(connection);
@@ -78,7 +80,7 @@ public class SQLiteRoomDAO implements RoomDAO{
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM Room");
         while (resultSet.next()) {
-            Room room = new Room(resultSet.getInt("id"), resultSet.getString("description"), resultSet.getInt("maxGuestsAllowed"), resultSet.getBoolean("hasPrivateBathroom"), resultSet.getBoolean("hasKitchen"));
+            Room room = new Room(resultSet.getInt("id"), resultSet.getString("description"), resultSet.getInt("maxGuestsAllowed"), resultSet.getBoolean("hasPrivateBathroom"), resultSet.getBoolean("hasKitchen"));;
             rooms.add(room);
         }
         resultSet.close();

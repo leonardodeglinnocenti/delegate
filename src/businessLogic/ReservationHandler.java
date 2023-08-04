@@ -20,8 +20,8 @@ public class ReservationHandler {
 
     // This class is a singleton
     private static ReservationHandler instance = null;
-    private ReservationDAO reservationDAO;
-    private CustomerBook customerBook;
+    private final ReservationDAO reservationDAO;
+    private final CustomerBook customerBook;
 
     private ReservationHandler(ReservationDAO reservationDAO, CustomerBook customerBook) {
         this.reservationDAO = reservationDAO;
@@ -35,7 +35,7 @@ public class ReservationHandler {
         return instance;
     }
 
-    public int addReservation(int accommodationId, LocalDate startDate, LocalDate endDate, int numberOfGuests, int numberOfChildren, int customerId, double price) {
+    public int addReservation(int accommodationId, LocalDate startDate, LocalDate endDate, int numberOfGuests, int numberOfChildren, int customerId, double price, double cityTax) {
         // check if the accommodation is available for the given dates using ReservationDAO
         // this function returns the id of the reservation if the accommodation is available, -1 otherwise
         try {
@@ -44,32 +44,30 @@ public class ReservationHandler {
             System.out.println(e.getMessage());
             return -1;
         }
-        // The id passed as a parameter is ignored when passed to the DAO.
-        Reservation reservation = new Reservation(-1, accommodationId, startDate, endDate, numberOfGuests, numberOfChildren, customerId, price, LocalDate.now());
 
         // Integrity check for the reservation object
         // Check whether the endDate is after the startDate
-        if (reservation.getArrivalDate().isAfter(reservation.getDepartureDate())) {
+        if (startDate.isAfter(endDate)) {
             System.err.println("ERROR: The arrival date must be before the departure date.");
             return -1;
         }
         // Check whether the endDate is equal to the startDate
-        if (reservation.getArrivalDate().isEqual(reservation.getDepartureDate())) {
+        if (startDate.isEqual(endDate)) {
             System.err.println("ERROR: The arrival date must be before the departure date.");
             return -1;
         }
         // Check whether the number of guests is greater than 0
-        if (reservation.getNumberOfGuests() <= 0) {
+        if (numberOfGuests <= 0) {
             System.err.println("ERROR: The number of guests must be greater than 0.");
             return -1;
         }
         // Check whether the number of children is greater than the number of guests
-        if (reservation.getNumberOfChildren() > reservation.getNumberOfGuests()) {
+        if (numberOfChildren > numberOfGuests) {
             System.err.println("ERROR: The number of children must be less than or equal to the number of guests.");
             return -1;
         }
         // Check whether the price is greater or equal to 0
-        if (reservation.getPrice() < 0) {
+        if (price < 0) {
             System.err.println("ERROR: The price must be greater or equal to 0.");
             return -1;
         }
@@ -89,6 +87,9 @@ public class ReservationHandler {
             System.out.println(e.getMessage());
             return -1;
         }
+        // The id passed as a parameter is ignored when passed to the DAO.
+        Reservation reservation = new Reservation(-1, accommodationId, startDate, endDate, numberOfGuests, numberOfChildren, customerId, price, LocalDate.now(), cityTax);
+
         try {
             reservationDAO.insert(reservation);
         } catch (Exception e) {
@@ -190,9 +191,16 @@ public class ReservationHandler {
 
         String confirmationCodeRecordTaxesFile = "Codice di conferma"; // taxes file
         String confirmationCodeRecordReservationsFile = "Codice di Conferma"; // reservations file
+
         String dateOfReservationRecord = "Prenotata"; // reservations file
+        String dateOfReservationRecordFormat = "yyyy-MM-dd";
+
         String arrivalDateRecord = "Arrivo"; // taxes file
+        String arrivalDateRecordFormat = "MM/dd/yyyy";
+
         String departureDateRecord = "";
+        String departureDateRecordFormat = "MM/dd/yyyy";
+
         String numberOfAdultsRecord = "N. di adulti"; // reservations file
         String numberOfChildrenRecord = "N. di bambini"; // reservations file
         String numberOfInfantsRecord = "N. di neonati"; // reservations file
@@ -252,21 +260,22 @@ public class ReservationHandler {
 
         for (CSVRecord record : csvParserTempFile) {
             // Get the data from the record
-            LocalDate reservationDate = LocalDate.parse(record.get("RESERVATION_DATE"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            LocalDate arrivalDate = LocalDate.parse(record.get("ARRIVAL_DATE"), DateTimeFormatter.ofPattern("MM/dd/yyyy"));
-            LocalDate departureDate = LocalDate.parse(record.get("DEPARTURE_DATE"), DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+            LocalDate reservationDate = LocalDate.parse(record.get("RESERVATION_DATE"), DateTimeFormatter.ofPattern(dateOfReservationRecordFormat));
+            LocalDate arrivalDate = LocalDate.parse(record.get("ARRIVAL_DATE"), DateTimeFormatter.ofPattern(arrivalDateRecordFormat));
+            LocalDate departureDate = LocalDate.parse(record.get("DEPARTURE_DATE"), DateTimeFormatter.ofPattern(departureDateRecordFormat));
             int numberOfAdults = Integer.parseInt(record.get("NUMBER_OF_ADULTS"));
             int numberOfChildren = Integer.parseInt(record.get("NUMBER_OF_CHILDREN")) + Integer.parseInt(record.get("NUMBER_OF_INFANTS"));
+            int numberOfGuests = numberOfAdults + numberOfChildren;
             String guestName = record.get("GUEST_NAME");
             String phoneNumber = record.get("PHONE_NUMBER");
             double price = Double.parseDouble(record.get("PRICE"));
-            double cityTax = Double.parseDouble(record.get("CITY_TAX")); // TODO: use this
+            double cityTaxAmount = Double.parseDouble(record.get("CITY_TAX"));
 
             // Create a new customer
             int customerId = customerBook.addCustomer(guestName, "", phoneNumber);
 
             // Create a new reservation
-            Reservation reservation = new Reservation(-1, apartmentId, arrivalDate, departureDate, numberOfAdults, numberOfChildren, customerId, price, reservationDate);
+            Reservation reservation = new Reservation(-1, apartmentId, arrivalDate, departureDate, numberOfGuests, numberOfChildren, customerId, price, reservationDate, cityTaxAmount);
             // Add the reservation to the database
             try {
                 reservationDAO.insert(reservation);

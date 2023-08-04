@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS Reservation (
     customerId          INT NOT NULL,
     price               DECIMAL(10,2) NOT NULL,
     dateOfReservation   DATE NOT NULL,
+    cityTaxAmount       DECIMAL(10,2),
     -- delete reservations related to deleted customers or deleted apartments/rooms
     FOREIGN KEY (customerId) REFERENCES Customer(id) ON DELETE CASCADE
 );
