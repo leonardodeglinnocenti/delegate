@@ -34,6 +34,11 @@ public class AccountingHandler {
         // Get the reservations for the given month and year for the given apartment
         ArrayList<Reservation> reservations = reservationHandler.getAccommodationMonthReservations(accommodation, month, year);
 
+        // Print collected reservations
+        for (Reservation reservation : reservations) {
+            reservation.printReservation();
+        }
+
         // Get the total number of nights that the apartment was booked for the given month and year
         int totalNights = 0;
         // Get the total amount of money that Airbnb declared to pay for the city tax for the given month and year
@@ -66,7 +71,8 @@ public class AccountingHandler {
                 delta = 0;
             } else {
                 // Note that the totalGuests counter is incremented only if the reservation is eligible for the city tax
-                totalGuests += reservation.getNumberOfGuests();
+                // Infant guests are not counted
+                totalGuests += reservation.getNumberOfGuests() - reservation.getNumberOfInfants();
                 totalCityTaxAmount += reservation.getCityTaxAmount();
             }
 

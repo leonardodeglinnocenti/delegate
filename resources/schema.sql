@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS Reservation (
     departureDate       DATE NOT NULL,
     numberOfGuests      INT NOT NULL,
     numberOfChildren    INT NOT NULL,
+    numberOfInfants     INT NOT NULL,
     customerId          INT NOT NULL,
     price               DECIMAL(10,2) NOT NULL,
     dateOfReservation   DATE NOT NULL,

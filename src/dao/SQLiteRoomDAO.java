@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class SQLiteRoomDAO implements RoomDAO{
     @Override
     public int getNextId() throws Exception {
-        return idGenerator.getNextId();
+        return IDGenerator.getNextId();
     }
 
     @Override

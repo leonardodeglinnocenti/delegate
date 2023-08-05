@@ -9,7 +9,7 @@ public class SQLiteApartmentDAO implements ApartmentDAO{
 
     @Override
     public int getNextId() {
-        return idGenerator.getNextId();
+        return IDGenerator.getNextId();
     }
 
     @Override

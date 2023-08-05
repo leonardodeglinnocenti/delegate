@@ -1,9 +1,9 @@
-package domainModel;
-
 import businessLogic.*;
 import dao.*;
+import domainModel.Accommodation;
+import domainModel.Customer;
+import domainModel.Reservation;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Main {
@@ -50,7 +50,7 @@ public class Main {
         }
 
         // Evaluate the city tax using the accounting handler
-        accountingHandler.evaluateCityTaxMonthlyDeclaration(accommodationHandler.getAccommodationById(apartmentPointer), 2, 2023, 4, 7);
+        accountingHandler.evaluateCityTaxMonthlyDeclaration(accommodationHandler.getAccommodationById(apartmentPointer), 3, 2023, 4, 7);
 
         /*
         // Create some accommodations

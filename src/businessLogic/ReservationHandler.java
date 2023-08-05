@@ -33,7 +33,7 @@ public class ReservationHandler {
         return instance;
     }
 
-    public Reservation addReservation(Accommodation accommodation, LocalDate startDate, LocalDate endDate, int numberOfGuests, int numberOfChildren, Customer customer, double price, double cityTax) {
+    public Reservation addReservation(Accommodation accommodation, LocalDate startDate, LocalDate endDate, int numberOfGuests, int numberOfChildren, int numberOfInfants, Customer customer, double price, double cityTax) {
         // check if the accommodation is available for the given dates using ReservationDAO
         // this function returns the id of the reservation if the accommodation is available, -1 otherwise
         try {
@@ -60,7 +60,7 @@ public class ReservationHandler {
             return null;
         }
         // Check whether the number of children is greater than the number of guests
-        if (numberOfChildren > numberOfGuests) {
+        if (numberOfChildren + numberOfInfants > numberOfGuests) {
             System.err.println("ERROR: The number of children must be less than or equal to the number of guests.");
             return null;
         }
@@ -81,7 +81,7 @@ public class ReservationHandler {
             return null;
         }
         // The id passed as a parameter is ignored when passed to the DAO.
-        Reservation reservation = new Reservation(-1, accommodation, startDate, endDate, numberOfGuests, numberOfChildren, customer, price, LocalDate.now(), cityTax);
+        Reservation reservation = new Reservation(-1, accommodation, startDate, endDate, numberOfGuests, numberOfChildren, numberOfInfants, customer, price, LocalDate.now(), cityTax);
 
         try {
             reservationDAO.insert(reservation);
@@ -266,7 +266,8 @@ public class ReservationHandler {
             LocalDate arrivalDate = LocalDate.parse(record.get("ARRIVAL_DATE"), DateTimeFormatter.ofPattern(arrivalDateRecordFormat));
             LocalDate departureDate = LocalDate.parse(record.get("DEPARTURE_DATE"), DateTimeFormatter.ofPattern(departureDateRecordFormat));
             int numberOfAdults = Integer.parseInt(record.get("NUMBER_OF_ADULTS"));
-            int numberOfChildren = Integer.parseInt(record.get("NUMBER_OF_CHILDREN")) + Integer.parseInt(record.get("NUMBER_OF_INFANTS"));
+            int numberOfChildren = Integer.parseInt(record.get("NUMBER_OF_CHILDREN"));
+            int numberOfInfants = Integer.parseInt(record.get("NUMBER_OF_INFANTS"));
             int numberOfGuests = numberOfAdults + numberOfChildren;
             String guestName = record.get("GUEST_NAME");
             String phoneNumber = record.get("PHONE_NUMBER");
@@ -277,7 +278,7 @@ public class ReservationHandler {
             Customer customer = customerBook.addCustomer(guestName, "", phoneNumber);
 
             // Create a new reservation
-            Reservation reservation = addReservation(accommodation, arrivalDate, departureDate, numberOfGuests, numberOfChildren, customer, price, cityTaxAmount);
+            Reservation reservation = addReservation(accommodation, arrivalDate, departureDate, numberOfGuests, numberOfChildren, numberOfInfants, customer, price, cityTaxAmount);
             // If reservation is null, then the reservation probably already exists
             if (reservation != null) {
                 // Set the date of reservation to the correct one

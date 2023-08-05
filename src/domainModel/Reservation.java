@@ -12,19 +12,21 @@ public class Reservation {
     // numberOfGuests and numberOfChildren are the total number of guests and children, respectively.
     private int numberOfGuests;
     private int numberOfChildren;
+    private int numberOfInfants;
     private Customer customer;
     private double price;
     private LocalDate dateOfReservation;
     private double cityTaxAmount;
 
 
-    public Reservation(int id, Accommodation accommodation, LocalDate arrivalDate, LocalDate departureDate, int numberOfGuests, int numberOfChildren, Customer customer, double price, LocalDate dateOfReservation, double cityTaxAmount) {
+    public Reservation(int id, Accommodation accommodation, LocalDate arrivalDate, LocalDate departureDate, int numberOfGuests, int numberOfChildren, int numberOfInfants, Customer customer, double price, LocalDate dateOfReservation, double cityTaxAmount) {
         this.id = id;
         this.accommodation = accommodation;
         this.arrivalDate = arrivalDate;
         this.departureDate = departureDate;
         this.numberOfGuests = numberOfGuests;
         this.numberOfChildren = numberOfChildren;
+        this.numberOfInfants = numberOfInfants;
         this.customer = customer;
         this.price = price;
         this.dateOfReservation = dateOfReservation;
@@ -48,6 +50,9 @@ public class Reservation {
     }
     public int getNumberOfChildren() {
         return numberOfChildren;
+    }
+    public int getNumberOfInfants() {
+        return numberOfInfants;
     }
     public Customer getCustomer() {
         return customer;

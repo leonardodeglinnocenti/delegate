@@ -1,6 +1,6 @@
 package dao;
 
-public class idGenerator {
+public class IDGenerator {
     // Manage generation of unique IDs for each object
     private static int nextId = 0;
 
