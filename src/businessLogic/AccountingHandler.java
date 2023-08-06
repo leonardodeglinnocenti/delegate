@@ -197,12 +197,17 @@ public class AccountingHandler {
                         totalGuests += (reservation.getNumberOfGuests() - reservation.getNumberOfChildren() - reservation.getNumberOfInfants());
                         // The city tax amount harvested collecting data from the database is counted only once here
                         // Only get the city tax percentage related to the current month and year
-                        int totalLength = (int) (reservation.getDepartureDate().toEpochDay() - reservation.getArrivalDate().toEpochDay());
+                        int totalLength = Math.min((int) (reservation.getDepartureDate().toEpochDay() - reservation.getArrivalDate().toEpochDay()), localTax.getDaysThreshold());
+                        daysDifference = (LocalDate.of(departureDate.getYear(), departureDate.getMonth(), 1).toEpochDay() - arrivalDate.toEpochDay());
                         if (daysDifference > 0 && daysDifference < localTax.getDaysThreshold()) {
                             int daysToPay = totalLength - (int)daysDifference;
                             totalCityTaxAmount += (reservation.getCityTaxAmount() * ((double) daysToPay / totalLength));
-                        } else
+                        } else {
                             totalCityTaxAmount += reservation.getCityTaxAmount();
+                        }
+                        // If there are multiple local taxes for the same period warn the user about the inaccuracy of the total city tax amount
+                        if (localTaxDAO.getLocalTaxesByTarget("adults", arrivalDate, departureDate).size() > 1)
+                            System.err.println("WARNING: The city tax amount has changed during the given month and year so Total city tax amount is not accurate");
                         firstIteration = false;
                     }
                 }
