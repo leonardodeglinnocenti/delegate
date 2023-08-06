@@ -35,13 +35,6 @@ public class ReservationHandler {
 
     public Reservation addReservation(Accommodation accommodation, LocalDate startDate, LocalDate endDate, int numberOfGuests, int numberOfChildren, int numberOfInfants, Customer customer, double price, double cityTax) {
         // check if the accommodation is available for the given dates using ReservationDAO
-        // this function returns the id of the reservation if the accommodation is available, -1 otherwise
-        try {
-            reservationDAO.checkAvailability(accommodation, startDate, endDate);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return null;
-        }
 
         // Integrity check for the reservation object
         // Check whether the endDate is after the startDate
@@ -191,8 +184,8 @@ public class ReservationHandler {
     // The following method allows the user to import data from Airbnb
     public boolean importFromAirbnb(Accommodation accommodation, String taxesFilePath, String reservationsFilePath) throws Exception {
 
-        String confirmationCodeRecordTaxesFile = "Codice di conferma"; // taxes file
-        String confirmationCodeRecordReservationsFile = "Codice di Conferma"; // reservations file
+        String confirmationCodeRecordTaxesFile = "Codice di Conferma"; // taxes file
+        String confirmationCodeRecordReservationsFile = "Codice di conferma"; // reservations file
 
         String dateOfReservationRecord = "Prenotata"; // reservations file
         String dateOfReservationRecordFormat = "yyyy-MM-dd";
@@ -206,7 +199,7 @@ public class ReservationHandler {
         String numberOfAdultsRecord = "N. di adulti"; // reservations file
         String numberOfChildrenRecord = "N. di bambini"; // reservations file
         String numberOfInfantsRecord = "N. di neonati"; // reservations file
-        String numberOfNightRecord = "N. di notti"; // reservations file
+        String numberOfNightsRecord = "N. di notti"; // reservations file
         String guestNameRecord = "Nome dell'ospite"; // reservations file
         String phoneNumberRecord = "Contatti"; // reservations file
         String priceRecord = "Guadagno lordo"; // taxes file
@@ -217,15 +210,43 @@ public class ReservationHandler {
 
         try {
             taxesFileReader = new BufferedReader(new FileReader(taxesFilePath));
-            reservationsFileReader = new BufferedReader(new FileReader(reservationsFilePath));
         } catch (FileNotFoundException e) {
-            System.err.println("ERROR: The file does not exist.");
+            System.err.println("ERROR: The file " + taxesFilePath + " does not exist.");
             return false;
         }
+
+        try {
+            reservationsFileReader = new BufferedReader(new FileReader(reservationsFilePath));
+        } catch (FileNotFoundException e) {
+            System.err.println("ERROR: The file " + reservationsFilePath + " does not exist.");
+            return false;
+        }
+
 
         // get the csv parser
         CSVParser csvParserTaxes = new CSVParser(taxesFileReader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim());
         CSVParser csvParserReservations = new CSVParser(reservationsFileReader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim());
+
+        // Collect and check the headers of the files
+        ArrayList<String> taxesFileHeader = new ArrayList<>(csvParserTaxes.getHeaderMap().keySet());
+        ArrayList<String> reservationsFileHeader = new ArrayList<>(csvParserReservations.getHeaderMap().keySet());
+        if (!taxesFileHeader.contains(confirmationCodeRecordTaxesFile) || !taxesFileHeader.contains(arrivalDateRecord) || !taxesFileHeader.contains(priceRecord) || !taxesFileHeader.contains(cityTaxRecord)) {
+            System.err.println("ERROR: The file " + taxesFilePath + " does not contain all the required columns.");
+            if (!reservationsFileHeader.contains(confirmationCodeRecordReservationsFile) || !reservationsFileHeader.contains(dateOfReservationRecord) || !reservationsFileHeader.contains(numberOfAdultsRecord) || !reservationsFileHeader.contains(numberOfChildrenRecord) || !reservationsFileHeader.contains(numberOfInfantsRecord) || !reservationsFileHeader.contains(numberOfNightsRecord) || !reservationsFileHeader.contains(guestNameRecord) || !reservationsFileHeader.contains(phoneNumberRecord)) {
+                System.err.println("ERROR: The file " + reservationsFilePath + " does not contain all the required columns.");
+            }
+            // Properly close the readers
+            taxesFileReader.close();
+            reservationsFileReader.close();
+            return false;
+        }
+        if (!reservationsFileHeader.contains(confirmationCodeRecordReservationsFile) || !reservationsFileHeader.contains(dateOfReservationRecord) || !reservationsFileHeader.contains(numberOfAdultsRecord) || !reservationsFileHeader.contains(numberOfChildrenRecord) || !reservationsFileHeader.contains(numberOfInfantsRecord) || !reservationsFileHeader.contains(numberOfNightsRecord) || !reservationsFileHeader.contains(guestNameRecord) || !reservationsFileHeader.contains(phoneNumberRecord)) {
+            System.err.println("ERROR: The file " + reservationsFilePath + " does not contain all the required columns.");
+            // Properly close the readers
+            taxesFileReader.close();
+            reservationsFileReader.close();
+            return false;
+        }
 
         // Create a new temporary file to store the merged file
         File tempFile = new File("temp.csv");
@@ -245,8 +266,8 @@ public class ReservationHandler {
             for (CSVRecord reservationsRecord : csvReservationsRecords) {
                 if (reservationsRecord.get(confirmationCodeRecordReservationsFile).equals(confirmationCode)) {
                     // Evaluate departure date
-                    String departureDate = LocalDate.parse(taxesRecord.get(arrivalDateRecord), DateTimeFormatter.ofPattern("MM/dd/yyyy")).plusDays(Integer.parseInt(reservationsRecord.get(numberOfNightRecord))).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
-                    csvPrinter.printRecord(confirmationCode, reservationsRecord.get(dateOfReservationRecord), taxesRecord.get(arrivalDateRecord), departureDate, reservationsRecord.get(numberOfAdultsRecord), reservationsRecord.get(numberOfChildrenRecord), reservationsRecord.get(numberOfInfantsRecord), reservationsRecord.get(numberOfNightRecord), reservationsRecord.get(guestNameRecord), reservationsRecord.get(phoneNumberRecord), taxesRecord.get(priceRecord), taxesRecord.get(cityTaxRecord));
+                    String departureDate = LocalDate.parse(taxesRecord.get(arrivalDateRecord), DateTimeFormatter.ofPattern("MM/dd/yyyy")).plusDays(Integer.parseInt(reservationsRecord.get(numberOfNightsRecord))).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+                    csvPrinter.printRecord(confirmationCode, reservationsRecord.get(dateOfReservationRecord), taxesRecord.get(arrivalDateRecord), departureDate, reservationsRecord.get(numberOfAdultsRecord), reservationsRecord.get(numberOfChildrenRecord), reservationsRecord.get(numberOfInfantsRecord), reservationsRecord.get(numberOfNightsRecord), reservationsRecord.get(guestNameRecord), reservationsRecord.get(phoneNumberRecord), taxesRecord.get(priceRecord), taxesRecord.get(cityTaxRecord));
                     break;
                 }
             }
@@ -298,6 +319,8 @@ public class ReservationHandler {
                         System.err.println(e.getMessage());
                         return false;
                     }
+                    // Warn the user that the error related to the unavailability of the accommodation can be ignored
+                    System.err.println("WARNING: The reservation with confirmation code " + record.get("CODE") + " already exists. The price and city tax amount have been summed to the existing ones. Ignore the previous error.");
                 } else {
                     System.err.println("ERROR: Conflict between two reservations detected.");
                     return false;

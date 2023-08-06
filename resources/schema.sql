@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS `Apartment`;
 DROP TABLE IF EXISTS `Room`;
 DROP TABLE IF EXISTS `Customer`;
 DROP TABLE IF EXISTS `Reservation`;
+DROP TABLE IF EXISTS `LocalTax`;
 
 -- Create the tables
 CREATE TABLE IF NOT EXISTS Apartment (
@@ -46,5 +47,15 @@ CREATE TABLE IF NOT EXISTS Reservation (
     cityTaxAmount       DECIMAL(10,2),
     -- delete reservations related to deleted customers or deleted apartments/rooms
     FOREIGN KEY (customerId) REFERENCES Customer(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS LocalTax (
+    id                  INT PRIMARY KEY,
+    description         TEXT NOT NULL,
+    amount              DECIMAL(10,2) NOT NULL,
+    target              TEXT NOT NULL,
+    daysThreshold       INT NOT NULL,
+    startDate           DATE NOT NULL,
+    endDate             DATE NOT NULL
 );
 

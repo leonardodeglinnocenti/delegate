@@ -1,9 +1,11 @@
 import businessLogic.*;
 import dao.*;
 import domainModel.Accommodation;
+import domainModel.Apartment;
 import domainModel.Customer;
 import domainModel.Reservation;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Main {
@@ -33,11 +35,12 @@ public class Main {
         AccountingHandler accountingHandler = AccountingHandler.getInstance(reservationHandler);
 
         // Create an accommodation
-        int apartmentPointer = accommodationHandler.createAccommodation("apartment", "Cosy apt", 6);
-        Accommodation accommodationPointer = accommodationHandler.getAccommodationById(apartmentPointer);
-        reservationHandler.importFromAirbnb(accommodationPointer, "/home/leonardo/Downloads/airbnb_tax_01_2023-08_2023.csv", "/home/leonardo/Downloads/reservations.csv");
+        int apartmentId = accommodationHandler.createAccommodation("apartment", "Cosy apt", 6);
+        // reservationHandler.importFromAirbnb(accommodationPointer, "/home/leonardo/Downloads/airbnb_tax_01_2023-08_2023.csv", "/home/leonardo/Downloads/reservations.csv");
+        Apartment apartmentPointer = apartmentDAO.get(apartmentId);
+        reservationHandler.importFromAirbnb(apartmentPointer, "/home/leonardo/Downloads/test_tax.csv", "/home/leonardo/Downloads/test_res.csv");
 
-        // Print all reservations
+        /*// Print all reservations
         ArrayList<Reservation> reservations = reservationHandler.getAllReservations();
         for (Reservation reservation : reservations) {
             reservation.printReservation();
@@ -47,10 +50,28 @@ public class Main {
         ArrayList<Customer> customers = customerBook.getAllCustomers();
         for (Customer customer : customers) {
             customer.printCustomer();
-        }
+        }*/
+
+        // Add city tax
+        accountingHandler.addLocalTax("Florence", 5.5, "adults", 7, LocalDate.of(2023, 4, 1), LocalDate.of(2030, 12, 31));
+        accountingHandler.addLocalTax("Florence", 5.5, "children", 7, LocalDate.of(2023, 4, 1), LocalDate.of(2030, 12, 31));
+        accountingHandler.addLocalTax("Florence", 5.5, "infants", 7, LocalDate.of(2023, 4, 1), LocalDate.of(2030, 12, 31));
+
+        accountingHandler.addLocalTax("Florence", 4, "adults", 7, LocalDate.of(2020, 1, 1), LocalDate.of(2023, 3, 31));
+        accountingHandler.addLocalTax("Florence", 4, "children", 7, LocalDate.of(2020, 1, 1), LocalDate.of(2023, 3, 31));
+        accountingHandler.addLocalTax("Florence", 4, "infants", 7, LocalDate.of(2020, 1, 1), LocalDate.of(2023, 3, 31));
+
+        // Create some customers
+        Customer customerPointer = customerBook.addCustomer("John Doe", "Reginald St. London", "123456789");
+        customerBook.addCustomer("Lewis Devis", "223 Baker St.", "987654321");
+        customerBook.addCustomer("Sherlock Holmes", "222b Baker St.", "76100100");
+
+        // Add a reservation
+        Reservation reservationPointer = reservationHandler.addReservation(apartmentPointer, LocalDate.of(2023, 3, 29), LocalDate.of(2023, 4, 3), 4, 2, 0, customerPointer, 160, 0);
+        accountingHandler.evaluateLocalTaxes(reservationPointer);
 
         // Evaluate the city tax using the accounting handler
-        accountingHandler.evaluateCityTaxMonthlyDeclaration(accommodationHandler.getAccommodationById(apartmentPointer), 3, 2023, 4, 7);
+        accountingHandler.evaluateCityTaxMonthlyDeclaration(apartmentPointer, 2, 2023);
 
         /*
         // Create some accommodations
@@ -66,11 +87,6 @@ public class Main {
         // Personalize the accommodation and the room with the pointer
         accommodationHandler.addApartmentDetails(apartmentPointer, 2, 6, 1, 0);
         accommodationHandler.addRoomDetails(roomPointer, true, true);
-
-        // Create some customers
-        customerBook.addCustomer("John Doe", "Reginald St. London", "123456789");
-        customerBook.addCustomer("Lewis Devis", "223 Baker St.", "987654321");
-        customerBook.addCustomer("Sherlock Holmes", "222b Baker St.", "76100100");
 
         // Get apartment and room ids
         ArrayList<Apartment> apartments = apartmentDAO.getAll();

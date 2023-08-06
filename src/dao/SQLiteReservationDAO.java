@@ -1,6 +1,5 @@
 package dao;
 
-import businessLogic.AccommodationHandler;
 import domainModel.Accommodation;
 import domainModel.Apartment;
 import domainModel.Room;
@@ -160,8 +159,12 @@ public class SQLiteReservationDAO implements ReservationDAO {
     @Override
     public ArrayList<Apartment> getAvailableApartments(LocalDate startDate, LocalDate endDate, int numberOfGuests) throws Exception {
         Connection connection = Database.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Apartment WHERE Apartment.maxGuestsAllowed >= ?");
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Apartment WHERE Apartment.maxGuestsAllowed >= ? AND Apartment.id NOT IN (SELECT accommodationId FROM Reservation WHERE NOT ((arrivalDate >= ? AND arrivalDate >= ?) OR (departureDate <= ? AND departureDate <= ?)))");
         preparedStatement.setInt(1, numberOfGuests);
+        preparedStatement.setDate(2, Date.valueOf(startDate));
+        preparedStatement.setDate(3, Date.valueOf(endDate));
+        preparedStatement.setDate(4, Date.valueOf(startDate));
+        preparedStatement.setDate(5, Date.valueOf(endDate));
         ResultSet resultSet = preparedStatement.executeQuery();
         ArrayList<Apartment> availableApartments = new ArrayList<>();
         ApartmentDAO apartmentDAO = new SQLiteApartmentDAO();
@@ -179,8 +182,12 @@ public class SQLiteReservationDAO implements ReservationDAO {
     @Override
     public ArrayList<Room> getAvailableRooms(LocalDate startDate, LocalDate endDate, int numberOfGuests) throws Exception {
         Connection connection = Database.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Room WHERE Room.maxGuestsAllowed >= ?");
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Room WHERE Room.maxGuestsAllowed >= ? AND Room.id NOT IN (SELECT accommodationId FROM Reservation WHERE NOT ((arrivalDate >= ? AND arrivalDate >= ?) OR (departureDate <= ? AND departureDate <= ?)))");
         preparedStatement.setInt(1, numberOfGuests);
+        preparedStatement.setDate(2, Date.valueOf(startDate));
+        preparedStatement.setDate(3, Date.valueOf(endDate));
+        preparedStatement.setDate(4, Date.valueOf(startDate));
+        preparedStatement.setDate(5, Date.valueOf(endDate));
         ResultSet resultSet = preparedStatement.executeQuery();
         ArrayList<Room> availableRooms = new ArrayList<>();
         RoomDAO roomDAO = new SQLiteRoomDAO();
