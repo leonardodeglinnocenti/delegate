@@ -1,16 +1,13 @@
 import businessLogic.*;
 import dao.*;
-import domainModel.Accommodation;
-import domainModel.Apartment;
-import domainModel.Customer;
-import domainModel.Reservation;
+import domainModel.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Main {
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
 
         // Initialize database
         Database.setDatabase("base.db");
@@ -27,7 +24,7 @@ public class Main {
 
         // Instantiate AccommodationHandler
         AccommodationHandler accommodationHandler = AccommodationHandler.getInstance(apartmentDAO, roomDAO);
-        
+
         // Instantiate ReservationHandler
         ReservationHandler reservationHandler = ReservationHandler.getInstance(reservationDAO, customerBook);
 
@@ -37,7 +34,7 @@ public class Main {
         // Create an accommodation
         int apartmentId = accommodationHandler.createAccommodation("apartment", "Cosy apt", 6);
         Apartment apartmentPointer = apartmentDAO.get(apartmentId);
-        reservationHandler.importFromAirbnb(apartmentPointer, "/home/leonardo/Downloads/airbnb_tax_01_2023-08_2023.csv", "/home/leonardo/Downloads/reservations.csv");
+        reservationHandler.importFromAirbnb(apartmentPointer, "/home/leonardo/Downloads/airbnb_tax_07_2023-07_2023.csv", "/home/leonardo/Downloads/reservations.csv");
         // reservationHandler.importFromAirbnb(apartmentPointer, "/home/leonardo/Downloads/test_tax.csv", "/home/leonardo/Downloads/test_res.csv");
 
         /*// Print all reservations
@@ -67,29 +64,28 @@ public class Main {
         customerBook.addCustomer("Sherlock Holmes", "222b Baker St.", "76100100");
 
         // Add a reservation in between the city tax change
-        // Reservation reservationPointer = reservationHandler.addReservation(apartmentPointer, LocalDate.of(2023, 3, 29), LocalDate.of(2023, 4, 3), 4, 2, 0, customerPointer, 160, 0);
-        // accountingHandler.evaluateLocalTaxes(reservationPointer);
-
-        // Add Dymphna reservation
-        Reservation reservationPointer = reservationHandler.addReservation(apartmentPointer, LocalDate.of(2023, 5, 20), LocalDate.of(2023, 5, 27), 4, 0, 0, customerPointer, 742, 0);
+        Reservation reservationPointer = reservationHandler.addReservation(apartmentPointer, LocalDate.of(2023, 3, 29), LocalDate.of(2023, 4, 3), 4, 2, 0, customerPointer, 160, 0);
         accountingHandler.evaluateLocalTaxes(reservationPointer);
 
-        // Evaluate the city tax using the accounting handler
-        accountingHandler.evaluateCityTaxMonthlyDeclaration(apartmentPointer, 5, 2023);
+        // Add Dymphna reservation
+        // Reservation reservationPointer = reservationHandler.addReservation(apartmentPointer, LocalDate.of(2023, 5, 20), LocalDate.of(2023, 5, 27), 4, 0, 0, customerPointer, 742, 0);
+        // accountingHandler.evaluateLocalTaxes(reservationPointer);
 
-        /*
+        // Evaluate the city tax using the accounting handler
+        accountingHandler.evaluateCityTaxMonthlyDeclaration(apartmentPointer, 4, 2023);
+
         // Create some accommodations
         accommodationHandler.createAccommodation("apartment", "Apartment 1", 4);
-        int roomPointer = accommodationHandler.createAccommodation("room","Room 2", 2);
+        int roomPointer = accommodationHandler.createAccommodation("room", "Room 2", 2);
         accommodationHandler.createAccommodation("apartment", "Apartment 2", 4);
-        int apartmentPointer = accommodationHandler.createAccommodation("apartment", "Apartment 3", 4);
-        accommodationHandler.createAccommodation("room","Room 1", 2);
+        int aptPointer = accommodationHandler.createAccommodation("apartment", "Apartment 3", 4);
+        accommodationHandler.createAccommodation("room", "Room 1", 2);
 
         // This will fail if everything is working correctly
-        accommodationHandler.createAccommodation("unknown","Room 3", 2);
+        accommodationHandler.createAccommodation("unknown", "Room 3", 2);
 
         // Personalize the accommodation and the room with the pointer
-        accommodationHandler.addApartmentDetails(apartmentPointer, 2, 6, 1, 0);
+        accommodationHandler.addApartmentDetails(aptPointer, 2, 6, 1, 0);
         accommodationHandler.addRoomDetails(roomPointer, true, true);
 
         // Get apartment and room ids
@@ -122,7 +118,8 @@ public class Main {
         Customer randomCustomer = customerBook.getCustomer(randomCustomerIndex);
 
         // Create a reservation for the selected apartment
-        reservationHandler.addReservation(randomApartment.getId(), LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 10), 4, 2, randomCustomer.getId(), 12.90);
+        Reservation res = reservationHandler.addReservation(randomApartment, LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 10), 4, 2, 0, randomCustomer, 0, 0);
+        accountingHandler.evaluateLocalTaxes(res);
 
         // Another guest wants to book the same apartment for an intersecting period
         availableApartments = reservationHandler.getAvailableApartments(LocalDate.of(2021, 1, 5), LocalDate.of(2021, 1, 15), 4);
@@ -134,11 +131,12 @@ public class Main {
         }
 
         // Try to book the same apartment for the intersecting period
-        reservationHandler.addReservation(randomApartment.getId(), LocalDate.of(2020, 12, 31), LocalDate.of(2021, 1, 1), 4, 2, randomCustomer.getId(), 12.90);
+        res = reservationHandler.addReservation(randomApartment, LocalDate.of(2020, 12, 31), LocalDate.of(2021, 1, 1), 4, 2, 0, randomCustomer, 12.90, 0);
+        accountingHandler.evaluateLocalTaxes(res);
 
         // Print all reservations for a given apartment
         System.out.println("Reservations for apartment " + randomApartment.getId() + ":");
-        for (Reservation reservation : reservationHandler.getAccommodationReservations(randomApartment.getId())) {
+        for (Reservation reservation : reservationHandler.getAccommodationReservations(randomApartment)) {
             reservation.printReservation();
         }
 
@@ -153,26 +151,32 @@ public class Main {
         Room randomRoom = roomDAO.get(randomRoomIndex);
 
         // Create a reservation for the selected room
-        reservationHandler.addReservation(randomRoomIndex, LocalDate.of(2021, 5, 1), LocalDate.of(2021, 5, 10), 2, 1, randomCustomer.getId(), 12.90);
+        res = reservationHandler.addReservation(randomRoom, LocalDate.of(2021, 5, 1), LocalDate.of(2021, 5, 10), 2, 1, 0, randomCustomer, 120, 40);
+        accountingHandler.evaluateLocalTaxes(res);
 
         // Test reservation cancellation
         reservationHandler.deleteReservation(2);
 
         // Print all reservations for a given room
         System.out.println("Reservations for room " + randomRoom.getId() + ":");
-        for (Reservation reservation : reservationHandler.getAccommodationReservations(randomRoom.getId())) {
+        for (Reservation reservation : reservationHandler.getAccommodationReservations(randomRoom)) {
             reservation.printReservation();
         }
 
         // This reservation should be deleted when the accommodation is deleted
-        reservationHandler.addReservation(roomPointer, LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 10), 4, 2, 0, 12.90);
-        reservationHandler.addReservation(apartmentPointer, LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 10), 4, 2, 0, 12.90);
+        res = reservationHandler.addReservation(apartmentPointer, LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 10), 4, 2, 0, customerBook.getCustomer(3), 12.90, 0);
+        accountingHandler.evaluateLocalTaxes(res);
+        res = reservationHandler.addReservation(apartmentPointer, LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 10), 4, 2, 0, customerBook.getCustomer(4), 12.90, 0);
+        try {
+            accountingHandler.evaluateLocalTaxes(res);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
 
         // Delete accommodation with a reservation
-        accommodationHandler.deleteAccommodation(1);
-        accommodationHandler.deleteAccommodation(apartmentPointer);
+        // accommodationHandler.deleteAccommodation(1);
         // customerBook.deleteCustomer(0);
-        customerBook.deleteCustomer(6);
+        // customerBook.deleteCustomer(6);
 
         // Print all customers
         System.out.println("All customers:");
@@ -185,7 +189,7 @@ public class Main {
         for (Reservation reservation : reservationHandler.getAllReservations()) {
             reservation.printReservation();
         }
-         */
+
     }
 
 }

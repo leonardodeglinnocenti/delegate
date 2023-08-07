@@ -198,7 +198,7 @@ public class AccountingHandler {
                         // The city tax amount harvested collecting data from the database is counted only once here
                         // Only get the city tax percentage related to the current month and year
                         int totalLength = Math.min((int) (reservation.getDepartureDate().toEpochDay() - reservation.getArrivalDate().toEpochDay()), localTax.getDaysThreshold());
-                        daysDifference = (LocalDate.of(departureDate.getYear(), departureDate.getMonth(), 1).toEpochDay() - arrivalDate.toEpochDay());
+                        daysDifference = (currentMonth.toEpochDay() - arrivalDate.toEpochDay());
                         if (daysDifference > 0 && daysDifference < localTax.getDaysThreshold()) {
                             int daysToPay = totalLength - (int)daysDifference;
                             totalCityTaxAmount += (reservation.getCityTaxAmount() * ((double) daysToPay / totalLength));
