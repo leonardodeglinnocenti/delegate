@@ -20,10 +20,12 @@ public class ReservationHandler {
     private static ReservationHandler instance = null;
     private final ReservationDAO reservationDAO;
     private final CustomerBook customerBook;
+    private final Customer unavailabilityCustomer;
 
     private ReservationHandler(ReservationDAO reservationDAO, CustomerBook customerBook) {
         this.reservationDAO = reservationDAO;
         this.customerBook = customerBook;
+        this.unavailabilityCustomer = customerBook.addCustomer("UNAVAILABLE", "", "");
     }
 
     public static ReservationHandler getInstance(ReservationDAO reservationDAO, CustomerBook customerBook) {
@@ -48,7 +50,8 @@ public class ReservationHandler {
             return null;
         }
         // Check whether the number of guests is greater than 0
-        if (numberOfGuests <= 0) {
+        if (numberOfGuests <= 0 && customer != unavailabilityCustomer) {
+            // Check if the customer is the unavailabilityCustomer
             System.err.println("ERROR: The number of guests must be greater than 0.");
             return null;
         }
@@ -179,6 +182,16 @@ public class ReservationHandler {
             System.err.println(e.getMessage());
             return null;
         }
+    }
+
+    public boolean addUnavailableDates(Accommodation accommodation, LocalDate startDate, LocalDate endDate) {
+        // Check if the accommodation is already unavailable for the given period of time
+        if (addReservation(accommodation, startDate, endDate, 0, 0, 0, unavailabilityCustomer, 0, 0) != null) {
+            System.err.println("ERROR: The accommodation is already unavailable for the given period of time.");
+            return false;
+        }
+        return true;
+
     }
 
     // The following method allows the user to import data from Airbnb

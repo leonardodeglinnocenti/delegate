@@ -125,6 +125,12 @@ public class AccountingHandler {
 
     // Evaluate the city tax for a given month and a given apartment
     public boolean evaluateCityTaxMonthlyDeclaration(Accommodation accommodation, int month, int year) throws Exception {
+        // Check if the accommodation is valid
+        if (accommodation == null) {
+            System.err.println("ERROR: Accommodation is null");
+            return false;
+        }
+
         // Create a CSV file for the given month and year
         String fileName = "cityTax_" + accommodation.getId() + "_" + month + "_" + year + ".csv";
 

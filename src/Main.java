@@ -178,6 +178,10 @@ public class Main {
         // customerBook.deleteCustomer(0);
         // customerBook.deleteCustomer(6);
 
+        // Make the apartment unavailable for a given period
+        reservationHandler.addUnavailableDates(apartmentPointer, LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 10));
+        reservationHandler.addUnavailableDates(apartmentPointer, LocalDate.of(2021, 1, 5), LocalDate.of(2021, 1, 15));
+
         // Print all customers
         System.out.println("All customers:");
         for (Customer customer : customerBook.getAllCustomers()) {
