@@ -88,9 +88,10 @@ public class SQLiteReservationDAO implements ReservationDAO {
     @Override
     public void insert(Reservation reservation) throws Exception {
         Connection connection = Database.getConnection();
+        reservation.setId(getNextId());
         PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Reservation (id, accommodationId, arrivalDate, departureDate, numberOfGuests, numberOfChildren, numberOfInfants, customerId, price, dateOfReservation, cityTaxAmount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         // Get the next id using IDGenerator and ignore the id passed as a parameter
-        preparedStatement.setInt(1, getNextId());
+        preparedStatement.setInt(1, reservation.getId());
         preparedStatement.setInt(2, reservation.getAccommodation().getId());
         preparedStatement.setDate(3, Date.valueOf(reservation.getArrivalDate()));
         preparedStatement.setDate(4, Date.valueOf(reservation.getDepartureDate()));

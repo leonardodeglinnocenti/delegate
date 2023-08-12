@@ -209,7 +209,12 @@ public class AccountingHandler {
                             int daysToPay = totalLength - (int)daysDifference;
                             totalCityTaxAmount += (reservation.getCityTaxAmount() * ((double) daysToPay / totalLength));
                         } else {
-                            totalCityTaxAmount += reservation.getCityTaxAmount();
+                            boolean check = departureDate.isAfter(currentMonth.plusMonths(1));
+                            if (check && daysDifference < localTax.getDaysThreshold()) {
+                                daysDifference = currentMonth.plusMonths(1).toEpochDay() - arrivalDate.toEpochDay();
+                                totalCityTaxAmount += (reservation.getCityTaxAmount() * ((double) daysDifference / totalLength));
+                            } else
+                                totalCityTaxAmount += reservation.getCityTaxAmount();
                         }
                         // If there are multiple local taxes for the same period warn the user about the inaccuracy of the total city tax amount
                         if (localTaxDAO.getLocalTaxesByTarget("adults", arrivalDate, departureDate).size() > 1)

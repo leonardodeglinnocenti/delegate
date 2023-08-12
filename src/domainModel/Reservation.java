@@ -5,7 +5,7 @@ import dao.ApartmentDAO;
 import dao.RoomDAO;
 
 public class Reservation {
-    private final int id;
+    private int id;
     private Accommodation accommodation;
     private LocalDate arrivalDate;
     private LocalDate departureDate;
@@ -36,6 +36,7 @@ public class Reservation {
     public int getId() {
         return id;
     }
+    public void setId(int id) { this.id = id; }
     public Accommodation getAccommodation() {
         return accommodation;
     }

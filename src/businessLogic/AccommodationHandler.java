@@ -55,20 +55,20 @@ public class AccommodationHandler {
         }
     }
 
-    public boolean deleteAccommodation(int id) {
+    public boolean deleteAccommodation(Accommodation accommodation) {
         // Check if the given id is referred to an apartment or a room (each is unique)
+        int id = accommodation.getId();
         try {
             if(apartmentDAO.delete(id)) {
                 return true;
-            }
-            if(roomDAO.delete(id)) {
+            } else if(roomDAO.delete(id)) {
                 return true;
             }
         } catch (Exception e) {
             System.err.println("ERROR: Something went wrong with the database and the accommodation could not be deleted.");
             return false;
         }
-        System.err.println("ERROR: Could not delete accommodation (wrong id).");
+        System.err.println("ERROR: Something went wrong with the given accommodation and it could not be deleted.");
         return false;
     }
 

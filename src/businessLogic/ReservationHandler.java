@@ -94,7 +94,8 @@ public class ReservationHandler {
         }
     }
 
-    public boolean deleteReservation(int reservationId) {
+    public boolean deleteReservation(Reservation reservation) {
+        int reservationId = reservation.getId();
         // Check whether the reservation exists using ReservationDAO
         try {
             if (reservationDAO.get(reservationId) == null) {
@@ -234,7 +235,6 @@ public class ReservationHandler {
             System.err.println("ERROR: The file " + reservationsFilePath + " does not exist.");
             return false;
         }
-
 
         // get the csv parser
         CSVParser csvParserTaxes = new CSVParser(taxesFileReader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim());
