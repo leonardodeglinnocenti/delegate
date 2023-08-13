@@ -32,9 +32,9 @@ public class Main {
         AccountingHandler accountingHandler = AccountingHandler.getInstance(reservationHandler);
 
         // Create an accommodation
-        int apartmentId = accommodationHandler.createAccommodation("apartment", "Cosy apt", 6);
-        accommodationHandler.addApartmentDetails(apartmentId, 4, 1, 2, 3);
-        Apartment apartmentPointer = apartmentDAO.get(apartmentId);
+        Accommodation accommodation = accommodationHandler.createAccommodation("apartment", "Cosy apt", 6);
+        accommodationHandler.addApartmentDetails(accommodation, 4, 1, 2, 3);
+        Apartment apartmentPointer = apartmentDAO.get(accommodation.getId());
         reservationHandler.importFromAirbnb(apartmentPointer, "test/businessLogic/airbnb_tax_test.csv", "test/businessLogic/reservations_test.csv");
         // reservationHandler.importFromAirbnb(apartmentPointer, "/home/leonardo/Downloads/test_tax.csv", "/home/leonardo/Downloads/test_res.csv");
 
@@ -74,6 +74,22 @@ public class Main {
 
         // Evaluate the city tax using the accounting handler
         accountingHandler.evaluateCityTaxMonthlyDeclaration(apartmentPointer, 4, 2023);
+
+        Accommodation accommodationTest = accommodationHandler.createAccommodation("apartment", "ciao", 13);
+        accommodationHandler.addApartmentDetails(accommodationTest, 6, 1, 0, 7);
+        if (accommodationTest instanceof Apartment apartment) {
+            apartment.printApartment();
+        } else if (accommodationTest instanceof Room room) {
+            room.printRoom();
+        }
+
+        Accommodation accommodation3 = accommodationHandler.createAccommodation("room", "ciao", 13);
+        accommodationHandler.addRoomDetails(accommodation3, true, true);
+        if (accommodation3 instanceof Apartment apartment) {
+            apartment.printApartment();
+        } else if (accommodation3 instanceof Room room) {
+            room.printRoom();
+        }
 
         /*// Create some accommodations
         accommodationHandler.createAccommodation("apartment", "Apartment 1", 4);

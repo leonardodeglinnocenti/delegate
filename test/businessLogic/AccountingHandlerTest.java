@@ -4,6 +4,8 @@ import dao.SQLiteApartmentDAO;
 import dao.SQLiteCustomerDAO;
 import dao.SQLiteReservationDAO;
 import dao.SQLiteRoomDAO;
+import domainModel.Accommodation;
+import domainModel.Apartment;
 import org.junit.jupiter.api.Test;
 
 // Apache Commons CSV
@@ -39,9 +41,9 @@ class AccountingHandlerTest {
         AccountingHandler accountingHandler = AccountingHandler.getInstance(reservationHandler);
 
         // Create an apartment
-        int apartmentId = accommodationHandler.createAccommodation("apartment", "Test", 2);
-        boolean check = accommodationHandler.addApartmentDetails(apartmentId, 4, 2, 1, 1);
-        assertTrue(check);
+        Accommodation apartment = accommodationHandler.createAccommodation("apartment", "Test", 2);
+        Apartment check = accommodationHandler.addApartmentDetails(apartment, 4, 2, 1, 1);
+        assertNotNull(check);
 
         // Create local taxes
         try {
@@ -55,7 +57,7 @@ class AccountingHandlerTest {
 
         // Import from test Airbnb files
         try {
-            reservationHandler.importFromAirbnb(accommodationHandler.getAccommodationById(apartmentId), "test/businessLogic/airbnb_tax_test.csv", "test/businessLogic/reservations_test.csv");
+            reservationHandler.importFromAirbnb(apartment, "test/businessLogic/airbnb_tax_test.csv", "test/businessLogic/reservations_test.csv");
         } catch (Exception e) {
             fail();
         }
@@ -71,9 +73,8 @@ class AccountingHandlerTest {
         AccountingHandler accountingHandler = AccountingHandler.getInstance(reservationHandler);
 
         // Create an apartment
-        int apartmentId = accommodationHandler.createAccommodation("apartment", "Test", 2);
-        boolean check = accommodationHandler.addApartmentDetails(apartmentId, 4, 2, 1, 1);
-        assertTrue(check);
+        Accommodation accommodation = accommodationHandler.createAccommodation("apartment", "Test", 2);
+        Apartment apartment = accommodationHandler.addApartmentDetails(accommodation, 4, 2, 1, 1);
 
         // Create local taxes
         try {
@@ -87,14 +88,14 @@ class AccountingHandlerTest {
 
         // Import from test Airbnb files
         try {
-            reservationHandler.importFromAirbnb(accommodationHandler.getAccommodationById(apartmentId), "test/businessLogic/airbnb_tax_test.csv", "test/businessLogic/reservations_test.csv");
+            reservationHandler.importFromAirbnb(apartment, "test/businessLogic/airbnb_tax_test.csv", "test/businessLogic/reservations_test.csv");
         } catch (Exception e) {
             fail();
         }
 
         // Evaluate monthly declaration
         try {
-            accountingHandler.evaluateCityTaxMonthlyDeclaration(accommodationHandler.getApartmentById(apartmentId), 4, 2023);
+            accountingHandler.evaluateCityTaxMonthlyDeclaration(apartment, 4, 2023);
         } catch (Exception e) {
             fail();
         }

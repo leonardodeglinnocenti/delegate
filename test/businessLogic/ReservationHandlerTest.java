@@ -20,9 +20,6 @@ class ReservationHandlerTest {
         Database.initDatabase();
     }
 
-    @BeforeEach
-
-
     @org.junit.jupiter.api.Test
     void ifAccommodationIsNotAvailable_ThenReservationIsNotInserted() throws Exception {
         // Test that if the accommodation is not available, the reservation is not inserted

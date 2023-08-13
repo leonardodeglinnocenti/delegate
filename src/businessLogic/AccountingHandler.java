@@ -216,9 +216,11 @@ public class AccountingHandler {
                             } else
                                 totalCityTaxAmount += reservation.getCityTaxAmount();
                         }
-                        // If there are multiple local taxes for the same period warn the user about the inaccuracy of the total city tax amount
-                        if (localTaxDAO.getLocalTaxesByTarget("adults", arrivalDate, departureDate).size() > 1)
-                            System.err.println("WARNING: The city tax amount has changed during the given month and year so Total city tax amount is not accurate");
+                        // If one or more local taxes expire or start in the middle of the reservation, warn the user
+                        if (localTax.getStartDate().isAfter(arrivalDate) || localTax.getEndDate().isBefore(departureDate)) {
+                            System.err.println("WARNING: One or more local taxes expire or start in the middle of a reservation.");
+                        }
+
                         firstIteration = false;
                     }
                 }
