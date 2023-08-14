@@ -187,12 +187,11 @@ public class ReservationHandler {
 
     public boolean addUnavailableDates(Accommodation accommodation, LocalDate startDate, LocalDate endDate) {
         // Check if the accommodation is already unavailable for the given period of time
-        if (addReservation(accommodation, startDate, endDate, 0, 0, 0, unavailabilityCustomer, 0, 0) != null) {
+        if (addReservation(accommodation, startDate, endDate, 0, 0, 0, unavailabilityCustomer, 0, 0) == null) {
             System.err.println("ERROR: The accommodation is already unavailable for the given period of time.");
             return false;
         }
         return true;
-
     }
 
     // The following method allows the user to import data from Airbnb
