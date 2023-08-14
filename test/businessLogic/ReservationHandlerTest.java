@@ -5,7 +5,6 @@ import domainModel.Apartment;
 import domainModel.Customer;
 import domainModel.Reservation;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 
 import java.time.LocalDate;
 
@@ -21,7 +20,7 @@ class ReservationHandlerTest {
     }
 
     @org.junit.jupiter.api.Test
-    void ifAccommodationIsNotAvailable_ThenReservationIsNotInserted() throws Exception {
+    void When_AccommodationIsNotAvailable_Expect_ReservationIsNotInserted() throws Exception {
         // Test that if the accommodation is not available, the reservation is not inserted
         ReservationDAO reservationDAO = new SQLiteReservationDAO();
         CustomerDAO customerDAO = new SQLiteCustomerDAO();
@@ -45,7 +44,7 @@ class ReservationHandlerTest {
     }
 
     @org.junit.jupiter.api.Test
-    void importFromAirbnb() throws Exception {
+    void testImportFromAirbnb() throws Exception {
         // Create an apartment
         Apartment apartment = new Apartment(-1, "Apartment 1", 4, 2, 1, 1, 2);
         ApartmentDAO apartmentDAO = new SQLiteApartmentDAO();

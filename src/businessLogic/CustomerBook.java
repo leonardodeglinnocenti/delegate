@@ -6,7 +6,7 @@ import domainModel.Customer;
 import java.util.ArrayList;
 
 public class CustomerBook {
-    private CustomerDAO customerDAO;
+    private final CustomerDAO customerDAO;
 
     // This class is a singleton
     private static CustomerBook instance = null;

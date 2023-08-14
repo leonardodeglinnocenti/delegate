@@ -1,13 +1,10 @@
 package dao;
 
 import domainModel.Apartment;
-import domainModel.Customer;
-import domainModel.Reservation;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.sql.Connection;
-import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,7 +28,7 @@ class SQLiteApartmentDAOTest {
     }
 
     @org.junit.jupiter.api.Test
-    void getNextId() throws Exception {
+    void testGetNextId() throws Exception {
         // Test that the next ID is greater than the current ID by 1
         ApartmentDAO apartmentDAO = new SQLiteApartmentDAO();
         int currentId = apartmentDAO.getNextId();
@@ -40,7 +37,7 @@ class SQLiteApartmentDAOTest {
     }
 
     @org.junit.jupiter.api.Test
-    void get() throws Exception {
+    void testGet() throws Exception {
         // Test that the apartment retrieved is the same as the one inserted using the init() method
         ApartmentDAO apartmentDAO = new SQLiteApartmentDAO();
         int nextId = apartmentDAO.getNextId();
@@ -56,11 +53,10 @@ class SQLiteApartmentDAOTest {
         } catch (Exception e) {
             fail();
         }
-
     }
 
     @org.junit.jupiter.api.Test
-    void insert() throws Exception {
+    void testInsert() throws Exception {
         // Test that the apartment inserted is the same as the one retrieved using the get() method
         ApartmentDAO apartmentDAO = new SQLiteApartmentDAO();
         int nextId = apartmentDAO.getNextId();
@@ -81,7 +77,7 @@ class SQLiteApartmentDAOTest {
     }
 
     @org.junit.jupiter.api.Test
-    void update() throws Exception {
+    void testUpdate() throws Exception {
         // Test that the apartment updated is the same as the one retrieved using the get() method
         ApartmentDAO apartmentDAO = new SQLiteApartmentDAO();
         int nextId = apartmentDAO.getNextId();
@@ -102,7 +98,7 @@ class SQLiteApartmentDAOTest {
     }
 
     @org.junit.jupiter.api.Test
-    void delete() throws Exception {
+    void testDelete() throws Exception {
         // Test that the apartment is deleted
         ApartmentDAO apartmentDAO = new SQLiteApartmentDAO();
         // Get the next ID to be used, so that we can delete the apartment inserted using the init() method
@@ -116,7 +112,7 @@ class SQLiteApartmentDAOTest {
     }
 
     @org.junit.jupiter.api.Test
-    void getAll() {
+    void testGetAll() {
         // Test that the list of apartments retrieved is the same as the one inserted using the init() method
         ApartmentDAO apartmentDAO = new SQLiteApartmentDAO();
         try {

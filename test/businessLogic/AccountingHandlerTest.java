@@ -1,40 +1,58 @@
 package businessLogic;
 
-import dao.SQLiteApartmentDAO;
-import dao.SQLiteCustomerDAO;
-import dao.SQLiteReservationDAO;
-import dao.SQLiteRoomDAO;
+import dao.*;
 import domainModel.Accommodation;
 import domainModel.Apartment;
+import domainModel.Reservation;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 // Apache Commons CSV
 import org.apache.commons.csv.*;
 
+import java.sql.Connection;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class AccountingHandlerTest {
 
+    @BeforeAll
+    static void initDb() throws Exception {
+        // Set up database
+        Database.setDatabase("test.db");
+        Database.initDatabase();
+    }
+
+    @BeforeEach
+    void init() throws Exception {
+        // Query to delete all local taxes
+        Connection connection = Database.getConnection();
+        connection.createStatement().executeUpdate("DELETE FROM LocalTax");
+        connection.createStatement().executeUpdate("DELETE FROM Reservation");
+        connection.createStatement().executeUpdate("DELETE FROM Apartment");
+        connection.close();
+    }
+
     @Test
-    void ifEndDateIsBeforeStartDate_ThenExceptionIsThrown() throws Exception {
+    void When_EndDateIsBeforeStartDate_Expect_Exception() throws Exception {
         ReservationHandler reservationHandler = ReservationHandler.getInstance(new SQLiteReservationDAO(), CustomerBook.getInstance(new SQLiteCustomerDAO()));
         AccountingHandler accountingHandler = AccountingHandler.getInstance(reservationHandler);
         boolean check = accountingHandler.addLocalTax("Test", 10, "children", 7, LocalDate.of(2020, 1, 1), LocalDate.of(2019, 1, 1));
         assertFalse(check);
     }
 
-    void ifTargetIsNotValid_ThenExceptionIsThrown() {
+    @Test
+    void When_TargetIsNotValid_Expect_False() throws Exception {
         ReservationHandler reservationHandler = ReservationHandler.getInstance(new SQLiteReservationDAO(), CustomerBook.getInstance(new SQLiteCustomerDAO()));
         AccountingHandler accountingHandler = AccountingHandler.getInstance(reservationHandler);
-        assertThrows(Exception.class, () -> {
-            accountingHandler.addLocalTax("Test", 10, "not_valid", 7, LocalDate.of(2020, 1, 1), LocalDate.of(2021, 1, 1));
-        });
+        boolean test = accountingHandler.addLocalTax("Test", 10, "not_valid", 7, LocalDate.of(2020, 1, 1), LocalDate.of(2021, 1, 1));
+        assertFalse(test);
     }
 
     @Test
-    void evaluateLocalTaxes() {
+    void testEvaluateLocalTaxes() throws Exception {
         CustomerBook customerBook = CustomerBook.getInstance(new SQLiteCustomerDAO());
         AccommodationHandler accommodationHandler = AccommodationHandler.getInstance(new SQLiteApartmentDAO(), new SQLiteRoomDAO());
         ReservationHandler reservationHandler = ReservationHandler.getInstance(new SQLiteReservationDAO(), customerBook);
@@ -55,18 +73,19 @@ class AccountingHandlerTest {
             fail();
         }
 
-        // Import from test Airbnb files
-        try {
-            reservationHandler.importFromAirbnb(apartment, "test/businessLogic/airbnb_tax_test.csv", "test/businessLogic/reservations_test.csv");
-        } catch (Exception e) {
-            fail();
-        }
+        // Create a reservation
+        Reservation reservation = reservationHandler.addReservation(apartment, LocalDate.of(2020, 1, 1), LocalDate.of(2020, 2, 12), 4, 2, 1, customerBook.getCustomer(1), 2, 1);
 
         // Evaluate local taxes
+        accountingHandler.evaluateLocalTaxes(reservation);
+
+        // Check that the local taxes were correctly evaluated
+        assertEquals(reservation.getCityTaxAmount(), 115.5);
+
     }
 
     @Test
-    void evaluateCityTaxMonthlyDeclaration() {
+    void testEvaluateCityTaxMonthlyDeclaration() {
         CustomerBook customerBook = CustomerBook.getInstance(new SQLiteCustomerDAO());
         AccommodationHandler accommodationHandler = AccommodationHandler.getInstance(new SQLiteApartmentDAO(), new SQLiteRoomDAO());
         ReservationHandler reservationHandler = ReservationHandler.getInstance(new SQLiteReservationDAO(), customerBook);
@@ -103,7 +122,7 @@ class AccountingHandlerTest {
         // Open the file and check that the declaration is correct using Apache Commons CSV
         try {
             // Open CSV file and parse it
-            CSVParser parser = CSVParser.parse(new java.io.FileReader("cityTax_1_4_2023.csv"), CSVFormat.DEFAULT.withFirstRecordAsHeader());
+            CSVParser parser = CSVParser.parse(new java.io.FileReader("cityTax_ID_"+apartment.getId()+"_for_4_2023.csv"), CSVFormat.DEFAULT.withFirstRecordAsHeader());
             for (CSVRecord csvRecord : parser) {
                 assertEquals("440.0", csvRecord.get("TOTAL CITY TAX AMOUNT"));
                 assertEquals("24", csvRecord.get("TOTAL GUESTS"));

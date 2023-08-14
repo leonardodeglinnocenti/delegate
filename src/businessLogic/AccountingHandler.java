@@ -87,6 +87,10 @@ public class AccountingHandler {
 
             long delta = (localTaxEndDate.toEpochDay() - localTaxStartDate.toEpochDay());
 
+            if (delta > localTax.getDaysThreshold()) {
+                delta = localTax.getDaysThreshold();
+            }
+
             adultsAmount += localTax.getAmount() * delta;
         }
 
@@ -98,6 +102,10 @@ public class AccountingHandler {
 
             long delta = (localTaxEndDate.toEpochDay() - localTaxStartDate.toEpochDay());
 
+            if (delta > localTax.getDaysThreshold()) {
+                delta = localTax.getDaysThreshold();
+            }
+
             childrenAmount += localTax.getAmount() * delta;
         }
 
@@ -108,6 +116,10 @@ public class AccountingHandler {
             LocalDate localTaxStartDate = localTax.getStartDate().isAfter(start) ? localTax.getStartDate() : start;
 
             long delta = (localTaxEndDate.toEpochDay() - localTaxStartDate.toEpochDay());
+
+            if (delta > localTax.getDaysThreshold()) {
+                delta = localTax.getDaysThreshold();
+            }
 
             infantsAmount += localTax.getAmount() * delta;
         }
@@ -132,7 +144,7 @@ public class AccountingHandler {
         }
 
         // Create a CSV file for the given month and year
-        String fileName = "cityTax_" + accommodation.getId() + "_" + month + "_" + year + ".csv";
+        String fileName = "cityTax_ID_" + accommodation.getId() + "_for_" + month + "_" + year + ".csv";
 
         // Get the reservations for the given month and year for the given apartment
         ArrayList<Reservation> reservations = reservationHandler.getAccommodationMonthReservations(accommodation, month, year);

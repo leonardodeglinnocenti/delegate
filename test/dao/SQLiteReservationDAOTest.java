@@ -38,15 +38,19 @@ class SQLiteReservationDAOTest {
     }
 
     @Test
-    void getAccommodationMonthReservations() {
-    }
-
-    @Test
-    void findReservationByPeriod() {
+    void testFindReservationByPeriod() throws Exception {
+        // Test that a reservation is found when it exists
+        ApartmentDAO apartmentDAO = new SQLiteApartmentDAO();
+        ReservationDAO reservationDAO = new SQLiteReservationDAO();
+        Apartment apartment = new Apartment(-1, "Apartment 1", 4, 2, 1, 1, 2);
+        apartmentDAO.insert(apartment);
+        reservationDAO.insert(new Reservation(-1, apartment, LocalDate.of(2023, 12, 1), LocalDate.of(2024, 1, 14), 4, 2, 1, new Customer(-1, "John", "", ""), 2, LocalDate.now(), 1));
+        Reservation reservation = reservationDAO.findReservationByPeriod(apartment, LocalDate.of(2023, 12, 1), LocalDate.of(2024, 1, 14));
+        assertNotNull(reservation);
     }
 
     @org.junit.jupiter.api.Test
-    void WhenCustomerIsDeleted_ThenAllReservationsForThatCustomerAreDeleted() throws Exception {
+    void When_CustomerIsDeleted_Expect_AllReservationsForThatCustomerAreDeleted() throws Exception {
         // Test that all reservations for the customer are deleted when the customer is deleted
         ApartmentDAO apartmentDAO = new SQLiteApartmentDAO();
         ReservationDAO reservationDAO = new SQLiteReservationDAO();
@@ -68,7 +72,7 @@ class SQLiteReservationDAOTest {
     }
 
     @org.junit.jupiter.api.Test
-    void WhenApartmentIsDeleted_ThenAllReservationsForThatApartmentAreDeleted() throws Exception {
+    void When_ApartmentIsDeleted_Expect_AllReservationsForThatApartmentAreDeleted() throws Exception {
         // Test that all reservations for the apartment are deleted when the apartment is deleted
         ApartmentDAO apartmentDAO = new SQLiteApartmentDAO();
         ReservationDAO reservationDAO = new SQLiteReservationDAO();

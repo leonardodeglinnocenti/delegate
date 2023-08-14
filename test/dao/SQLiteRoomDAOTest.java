@@ -25,7 +25,7 @@ class SQLiteRoomDAOTest {
     }
 
     @org.junit.jupiter.api.Test
-    void getNextId() throws Exception {
+    void testGetNextId() throws Exception {
         RoomDAO roomDAO = new SQLiteRoomDAO();
         int nextId = roomDAO.getNextId();
         try {
@@ -39,7 +39,7 @@ class SQLiteRoomDAOTest {
     }
 
     @org.junit.jupiter.api.Test
-    void insert() throws Exception {
+    void testInsert() throws Exception {
         // Test that the room inserted is the same as the one retrieved using the get() method
         RoomDAO roomDAO = new SQLiteRoomDAO();
         int nextId = roomDAO.getNextId();
@@ -56,7 +56,7 @@ class SQLiteRoomDAOTest {
     }
 
     @org.junit.jupiter.api.Test
-    void update() throws Exception {
+    void testUpdate() throws Exception {
         // Test that the room updated is the same as the one retrieved using the get() method
         RoomDAO roomDAO = new SQLiteRoomDAO();
         int nextId = roomDAO.getNextId();
@@ -73,7 +73,7 @@ class SQLiteRoomDAOTest {
     }
 
     @org.junit.jupiter.api.Test
-    void delete() throws Exception {
+    void testDelete() throws Exception {
         // Test that the room deleted is not the same as the one retrieved using the get() method
         RoomDAO roomDAO = new SQLiteRoomDAO();
         int nextId = roomDAO.getNextId();
@@ -89,7 +89,7 @@ class SQLiteRoomDAOTest {
     }
 
     @org.junit.jupiter.api.Test
-    void get() throws Exception {
+    void testGet() throws Exception {
         // Test that the room retrieved is the same as the one inserted
         RoomDAO roomDAO = new SQLiteRoomDAO();
         int nextId = roomDAO.getNextId();
@@ -106,7 +106,7 @@ class SQLiteRoomDAOTest {
     }
 
     @org.junit.jupiter.api.Test
-    void getAll() throws Exception {
+    void testGetAll() throws Exception {
         // Test that the rooms retrieved are the same as the ones inserted
         RoomDAO roomDAO = new SQLiteRoomDAO();
         int nextId = roomDAO.getNextId();
