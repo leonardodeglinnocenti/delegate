@@ -195,7 +195,7 @@ public class ReservationHandler {
     }
 
     // The following method allows the user to import data from Airbnb
-    public boolean importFromAirbnb(Accommodation accommodation, String taxesFilePath, String reservationsFilePath) throws Exception {
+    public void importFromAirbnb(Accommodation accommodation, String taxesFilePath, String reservationsFilePath) throws Exception {
 
         String confirmationCodeRecordTaxesFile = "Codice di Conferma"; // taxes file
         String confirmationCodeRecordReservationsFile = "Codice di conferma"; // reservations file
@@ -224,15 +224,13 @@ public class ReservationHandler {
         try {
             taxesFileReader = new BufferedReader(new FileReader(taxesFilePath));
         } catch (FileNotFoundException e) {
-            System.err.println("ERROR: The file " + taxesFilePath + " does not exist.");
-            return false;
+            throw new Exception("ERROR: The file " + taxesFilePath + " does not exist.", e);
         }
 
         try {
             reservationsFileReader = new BufferedReader(new FileReader(reservationsFilePath));
         } catch (FileNotFoundException e) {
-            System.err.println("ERROR: The file " + reservationsFilePath + " does not exist.");
-            return false;
+            throw new Exception("ERROR: The file " + reservationsFilePath + " does not exist.", e);
         }
 
         // get the csv parser
@@ -243,21 +241,21 @@ public class ReservationHandler {
         ArrayList<String> taxesFileHeader = new ArrayList<>(csvParserTaxes.getHeaderMap().keySet());
         ArrayList<String> reservationsFileHeader = new ArrayList<>(csvParserReservations.getHeaderMap().keySet());
         if (!taxesFileHeader.contains(confirmationCodeRecordTaxesFile) || !taxesFileHeader.contains(arrivalDateRecord) || !taxesFileHeader.contains(priceRecord) || !taxesFileHeader.contains(cityTaxRecord)) {
-            System.err.println("ERROR: The file " + taxesFilePath + " does not contain all the required columns.");
+            String errorMessage = "ERROR: The file " + taxesFilePath + " does not contain all the required columns.";
             if (!reservationsFileHeader.contains(confirmationCodeRecordReservationsFile) || !reservationsFileHeader.contains(dateOfReservationRecord) || !reservationsFileHeader.contains(numberOfAdultsRecord) || !reservationsFileHeader.contains(numberOfChildrenRecord) || !reservationsFileHeader.contains(numberOfInfantsRecord) || !reservationsFileHeader.contains(numberOfNightsRecord) || !reservationsFileHeader.contains(guestNameRecord) || !reservationsFileHeader.contains(phoneNumberRecord)) {
-                System.err.println("ERROR: The file " + reservationsFilePath + " does not contain all the required columns.");
+                errorMessage += "\nERROR: The file " + reservationsFilePath + " does not contain all the required columns.";
             }
             // Properly close the readers
             taxesFileReader.close();
             reservationsFileReader.close();
-            return false;
+            throw new Exception(errorMessage);
         }
         if (!reservationsFileHeader.contains(confirmationCodeRecordReservationsFile) || !reservationsFileHeader.contains(dateOfReservationRecord) || !reservationsFileHeader.contains(numberOfAdultsRecord) || !reservationsFileHeader.contains(numberOfChildrenRecord) || !reservationsFileHeader.contains(numberOfInfantsRecord) || !reservationsFileHeader.contains(numberOfNightsRecord) || !reservationsFileHeader.contains(guestNameRecord) || !reservationsFileHeader.contains(phoneNumberRecord)) {
-            System.err.println("ERROR: The file " + reservationsFilePath + " does not contain all the required columns.");
+            String errorMessageReservations = "ERROR: The file " + reservationsFilePath + " does not contain all the required columns.";
             // Properly close the readers
             taxesFileReader.close();
             reservationsFileReader.close();
-            return false;
+            throw new Exception(errorMessageReservations);
         }
 
         // Create a new temporary file to store the merged file
@@ -328,14 +326,12 @@ public class ReservationHandler {
                     try {
                         reservationDAO.update(reservation);
                     } catch (Exception e) {
-                        System.err.println(e.getMessage());
-                        return false;
+                        throw new Exception(e);
                     }
                     // Warn the user that the error related to the unavailability of the accommodation can be ignored
                     System.err.println("WARNING: The reservation with confirmation code " + record.get("CODE") + " already exists. The price and city tax amount have been summed to the existing ones. Ignore the previous error.");
                 } else {
-                    System.err.println("ERROR: Conflict between two reservations detected.");
-                    return false;
+                    throw new Exception("ERROR: Conflict between two reservations detected.");
                 }
             }
         }
@@ -345,8 +341,6 @@ public class ReservationHandler {
 
         // Close the parser
         csvParserTempFile.close();
-
-        return true;
     }
 
 }

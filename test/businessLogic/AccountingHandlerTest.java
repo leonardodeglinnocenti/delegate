@@ -85,7 +85,7 @@ class AccountingHandlerTest {
     }
 
     @Test
-    void testEvaluateCityTaxMonthlyDeclaration() {
+    void testEvaluateCityTaxMonthlyDeclaration() throws Exception {
         CustomerBook customerBook = CustomerBook.getInstance(new SQLiteCustomerDAO());
         AccommodationHandler accommodationHandler = AccommodationHandler.getInstance(new SQLiteApartmentDAO(), new SQLiteRoomDAO());
         ReservationHandler reservationHandler = ReservationHandler.getInstance(new SQLiteReservationDAO(), customerBook);

@@ -44,21 +44,29 @@ class ReservationHandlerTest {
     }
 
     @org.junit.jupiter.api.Test
-    void testImportFromAirbnb() throws Exception {
-        // Create an apartment
-        Apartment apartment = new Apartment(-1, "Apartment 1", 4, 2, 1, 1, 2);
-        ApartmentDAO apartmentDAO = new SQLiteApartmentDAO();
-        try {
-            apartmentDAO.insert(apartment);
-        } catch (Exception e) {
-            fail();
-        }
-        // Import from test Airbnb files
+    void When_AirbnbFilesInvalidPath_Expect_Exception() throws Exception {
+        // Test that if the file path is invalid, an exception is thrown
         ReservationHandler reservationHandler = ReservationHandler.getInstance(new SQLiteReservationDAO(), CustomerBook.getInstance(new SQLiteCustomerDAO()));
-        boolean check = reservationHandler.importFromAirbnb(apartment, "test/businessLogic/airbnb_tax_test.csv", "test/businessLogic/reservations_test.csv");
-        // Get the files from the current directory
-        // Check that the import was successful
-        assertTrue(check);
+        try {
+            reservationHandler.importFromAirbnb(new Apartment(-1, "Apartment 1", 4, 2, 1, 1, 2), "invalid_path", "invalid_path");
+            fail();
+        } catch (Exception e) {
+            assertEquals("ERROR: The file invalid_path does not exist.", e.getMessage());
+        }
+    }
+
+    @org.junit.jupiter.api.Test
+    void When_AirbnbProvidedFilesAreNotCompliant_Expect_Exception() throws Exception {
+        // Test that if the files provided are not compliant, an exception is thrown
+        ReservationHandler reservationHandler = ReservationHandler.getInstance(new SQLiteReservationDAO(), CustomerBook.getInstance(new SQLiteCustomerDAO()));
+        String wrongTaxTestFile = "test/businessLogic/airbnb_tax_test_WRONG.csv";
+        String wrongReservationTestFile = "test/businessLogic/reservations_test_WRONG.csv";
+        try {
+            reservationHandler.importFromAirbnb(new Apartment(-1, "Apartment 1", 4, 2, 1, 1, 2), wrongTaxTestFile, wrongReservationTestFile);
+            fail();
+        } catch (Exception e) {
+            assertEquals("ERROR: The file " + wrongTaxTestFile + " does not contain all the required columns.\nERROR: The file " + wrongReservationTestFile + " does not contain all the required columns.", e.getMessage().toString());
+        }
     }
 
 }

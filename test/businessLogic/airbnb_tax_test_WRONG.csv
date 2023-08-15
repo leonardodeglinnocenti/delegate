@@ -1,0 +1,7 @@
+Data,Tipo,Codice di Conferma,WRONG,Notti,Ospite,Annuncio,Dettagli,Referenza,Valuta,Totale,Pagamento,Commissione Host,Spese di Pulizia,Guadagno lordo,Tasse di Soggiorno,Annualità dei guadagni
+04/29/2023,Prenotazione,CodiceAirbnb01,04/28/2023,12,Walter White,Appartamento 1,,,EUR,540.01,,16.2003,35,558.8097,115.5,
+04/25/2023,Prenotazione,CodiceAirbnb02,04/24/2023,3,Jesse Pinkman,Appartamento 1,,,EUR,234.12,,7.0236,35,262.0964,66,
+04/17/2023,Prenotazione,CodiceAirbnb03,04/16/2023,7,Gus Fring,Appartamento 1,,,EUR,98.32,,2.9496,35,130.3704,77,
+04/14/2023,Prenotazione,CodiceAirbnb04,04/13/2023,2,Mike Hermantraut,Appartamento 1,,,EUR,169.65,,5.0895,35,199.5605,66,
+04/11/2023,Prenotazione,CodiceAirbnb05,04/10/2023,2,Saul Goodman,Appartamento 1,,,EUR,783.23,,23.4969,35,794.7331,66,
+04/02/2023,Prenotazione,CodiceAirbnb06,04/01/2023,8,Hank Schrader,Appartamento 1,,,EUR,696.7,,20.901,35,710.799,115.5,
